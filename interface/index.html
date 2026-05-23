@@ -1179,11 +1179,15 @@
         addMsg(text, "user", null, null);
         showTyping();
         try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 30000);
           const r = await fetch(`${API}/chat`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text }),
+            signal: controller.signal,
           });
+          clearTimeout(timeout);
           const d = await r.json();
           hideTyping();
           addMsg(d.response, "entity", d.emotion, null);
@@ -1191,10 +1195,15 @@
           if (d.search_query) addSys(`بحث: ${d.search_query}`);
         } catch (e) {
           hideTyping();
-          addMsg("مفيش اتصال — شغّل server.py", "entity", null, null);
+          const msg =
+            e.name === "AbortError"
+              ? "السيرفر بطيء — حاول تاني"
+              : "مفيش اتصال — شغّل server.py";
+          addMsg(msg, "entity", null, null);
+        } finally {
+          busy = false;
+          document.getElementById("sendBtn").disabled = false;
         }
-        busy = false;
-        document.getElementById("sendBtn").disabled = false;
         document.getElementById("msgIn").focus();
       }
 

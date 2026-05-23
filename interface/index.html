@@ -1,978 +1,1364 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الكيان</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Noto+Kufi+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:       #07080f;
-  --surface:  #0e0f1a;
-  --card:     #13141f;
-  --border:   #1e2035;
-  --border2:  #2a2d4a;
-  --accent:   #4fffb0;
-  --accent2:  #4d9fff;
-  --warn:     #ffb84d;
-  --danger:   #ff4d6d;
-  --text:     #c4cce0;
-  --dim:      #4a5070;
-  --bright:   #eef2ff;
-  --mono:     'IBM Plex Mono', monospace;
-  --sans:     'Noto Kufi Arabic', sans-serif;
-}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>الكيان</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Noto+Kufi+Arabic:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #07080f;
+        --surface: #0e0f1a;
+        --card: #13141f;
+        --border: #1e2035;
+        --border2: #2a2d4a;
+        --accent: #4fffb0;
+        --accent2: #4d9fff;
+        --warn: #ffb84d;
+        --danger: #ff4d6d;
+        --text: #c4cce0;
+        --dim: #4a5070;
+        --bright: #eef2ff;
+        --mono: "IBM Plex Mono", monospace;
+        --sans: "Noto Kufi Arabic", sans-serif;
+      }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  height: 100vh;
-  display: grid;
-  grid-template-rows: 52px 1fr;
-  grid-template-columns: 240px 1fr 220px;
-  overflow: hidden;
-}
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        height: 100vh;
+        display: grid;
+        grid-template-rows: 52px 1fr;
+        grid-template-columns: 240px 1fr 220px;
+        overflow: hidden;
+      }
 
-/* ═══ HEADER ═══ */
-header {
-  grid-column: 1/-1;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  gap: 12px;
-}
+      /* ═══ HEADER ═══ */
+      header {
+        grid-column: 1/-1;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        gap: 12px;
+      }
 
-.h-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
-  animation: blink 2.5s infinite;
-  flex-shrink: 0;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+      .h-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+        animation: blink 2.5s infinite;
+        flex-shrink: 0;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
 
-.h-title {
-  font-family: var(--mono);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: 3px;
-}
-.h-title span { color: var(--dim); font-weight: 300; }
+      .h-title {
+        font-family: var(--mono);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 3px;
+      }
+      .h-title span {
+        color: var(--dim);
+        font-weight: 300;
+      }
 
-.h-info {
-  margin-right: auto;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+      .h-info {
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
 
-.h-chip {
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--border2);
-  color: var(--dim);
-  white-space: nowrap;
-}
+      .h-chip {
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1px solid var(--border2);
+        color: var(--dim);
+        white-space: nowrap;
+      }
 
-.h-chip.alive { border-color: rgba(79,255,176,.3); color: var(--accent); }
-.h-chip.warn  { border-color: rgba(255,184,77,.3); color: var(--warn); }
-.h-chip.danger{ border-color: rgba(255,77,109,.3); color: var(--danger); }
+      .h-chip.alive {
+        border-color: rgba(79, 255, 176, 0.3);
+        color: var(--accent);
+      }
+      .h-chip.warn {
+        border-color: rgba(255, 184, 77, 0.3);
+        color: var(--warn);
+      }
+      .h-chip.danger {
+        border-color: rgba(255, 77, 109, 0.3);
+        color: var(--danger);
+      }
 
-/* ═══ PANELS ═══ */
-.panel {
-  background: var(--surface);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.panel::-webkit-scrollbar { width: 3px; }
-.panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+      /* ═══ PANELS ═══ */
+      .panel {
+        background: var(--surface);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      .panel::-webkit-scrollbar {
+        width: 3px;
+      }
+      .panel::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
 
-.panel-left  { border-left: 1px solid var(--border); }
-.panel-right { border-right: 1px solid var(--border); }
+      .panel-left {
+        border-left: 1px solid var(--border);
+      }
+      .panel-right {
+        border-right: 1px solid var(--border);
+      }
 
-/* Section */
-.sec {
-  padding: 14px 14px 10px;
-  border-bottom: 1px solid var(--border);
-}
+      /* Section */
+      .sec {
+        padding: 14px 14px 10px;
+        border-bottom: 1px solid var(--border);
+      }
 
-.sec-title {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--dim);
-  margin-bottom: 10px;
-}
+      .sec-title {
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 10px;
+      }
 
-/* Dopamine bar */
-.dop-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
-}
-.dop-label { font-size: 11px; color: var(--dim); }
-.dop-value {
-  font-family: var(--mono);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--accent);
-  transition: color .5s;
-  line-height: 1;
-}
-.dop-bar {
-  height: 3px;
-  background: var(--border2);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.dop-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width .8s ease, background .5s;
-}
+      /* Dopamine bar */
+      .dop-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 6px;
+      }
+      .dop-label {
+        font-size: 11px;
+        color: var(--dim);
+      }
+      .dop-value {
+        font-family: var(--mono);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--accent);
+        transition: color 0.5s;
+        line-height: 1;
+      }
+      .dop-bar {
+        height: 3px;
+        background: var(--border2);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .dop-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition:
+          width 0.8s ease,
+          background 0.5s;
+      }
 
-/* Emotion rows */
-.em-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 0;
-  transition: opacity .3s;
-}
-.em-row.inactive { opacity: .35; }
-.em-name { font-size: 12px; flex: 1; }
-.em-track {
-  width: 72px; height: 2px;
-  background: var(--border2);
-  border-radius: 1px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.em-fill { height: 100%; border-radius: 1px; transition: width .5s ease; }
-.em-pct {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--dim);
-  width: 28px;
-  text-align: left;
-}
+      /* Emotion rows */
+      .em-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+        transition: opacity 0.3s;
+      }
+      .em-row.inactive {
+        opacity: 0.35;
+      }
+      .em-name {
+        font-size: 12px;
+        flex: 1;
+      }
+      .em-track {
+        width: 72px;
+        height: 2px;
+        background: var(--border2);
+        border-radius: 1px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .em-fill {
+        height: 100%;
+        border-radius: 1px;
+        transition: width 0.5s ease;
+      }
+      .em-pct {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--dim);
+        width: 28px;
+        text-align: left;
+      }
 
-/* Stats grid */
-.stat-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-}
-.stat-card-label { font-size: 10px; color: var(--dim); margin-bottom: 2px; }
-.stat-card-value {
-  font-family: var(--mono);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--accent);
-}
+      /* Stats grid */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .stat-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+      .stat-card-label {
+        font-size: 10px;
+        color: var(--dim);
+        margin-bottom: 2px;
+      }
+      .stat-card-value {
+        font-family: var(--mono);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--accent);
+      }
 
-/* Lifetime bar */
-.life-bar {
-  height: 4px;
-  background: var(--border2);
-  border-radius: 2px;
-  overflow: hidden;
-  margin: 8px 0 4px;
-}
-.life-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
-.life-meta {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--dim);
-}
+      /* Lifetime bar */
+      .life-bar {
+        height: 4px;
+        background: var(--border2);
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 8px 0 4px;
+      }
+      .life-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 1s ease;
+      }
+      .life-meta {
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--dim);
+      }
 
-/* Drive rows */
-.drive-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 0;
-}
-.drive-name { font-size: 11px; color: var(--dim); flex: 1; }
-.drive-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--border2);
-  flex-shrink: 0;
-  transition: background .4s, box-shadow .4s;
-}
-.drive-dot.active {
-  background: var(--warn);
-  box-shadow: 0 0 6px var(--warn);
-}
+      /* Drive rows */
+      .drive-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 3px 0;
+      }
+      .drive-name {
+        font-size: 11px;
+        color: var(--dim);
+        flex: 1;
+      }
+      .drive-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--border2);
+        flex-shrink: 0;
+        transition:
+          background 0.4s,
+          box-shadow 0.4s;
+      }
+      .drive-dot.active {
+        background: var(--warn);
+        box-shadow: 0 0 6px var(--warn);
+      }
 
-/* Q items */
-.q-item {
-  font-size: 11px;
-  color: var(--dim);
-  padding: 4px 8px;
-  border-right: 2px solid var(--accent2);
-  margin-bottom: 4px;
-  line-height: 1.5;
-  background: var(--card);
-  border-radius: 0 4px 4px 0;
-}
+      /* Q items */
+      .q-item {
+        font-size: 11px;
+        color: var(--dim);
+        padding: 4px 8px;
+        border-right: 2px solid var(--accent2);
+        margin-bottom: 4px;
+        line-height: 1.5;
+        background: var(--card);
+        border-radius: 0 4px 4px 0;
+      }
 
-/* HW status */
-.hw-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  padding: 3px 0;
-}
-.hw-key { color: var(--dim); }
-.hw-val { font-family: var(--mono); font-size: 11px; }
+      /* HW status */
+      .hw-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        padding: 3px 0;
+      }
+      .hw-key {
+        color: var(--dim);
+      }
+      .hw-val {
+        font-family: var(--mono);
+        font-size: 11px;
+      }
 
-/* ═══ CHAT ═══ */
-.chat {
-  display: flex;
-  flex-direction: column;
-  border-left: 1px solid var(--border);
-  border-right: 1px solid var(--border);
-  overflow: hidden;
-}
+      /* ═══ CHAT ═══ */
+      .chat {
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        overflow: hidden;
+      }
 
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  scroll-behavior: smooth;
-}
-.messages::-webkit-scrollbar { width: 3px; }
-.messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+      .messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        scroll-behavior: smooth;
+      }
+      .messages::-webkit-scrollbar {
+        width: 3px;
+      }
+      .messages::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
 
-/* Message */
-.msg { display: flex; gap: 10px; animation: fadeUp .25s ease; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-.msg.user { flex-direction: row-reverse; }
+      /* Message */
+      .msg {
+        display: flex;
+        gap: 10px;
+        animation: fadeUp 0.25s ease;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .msg.user {
+        flex-direction: row-reverse;
+      }
 
-.avatar {
-  width: 28px; height: 28px;
-  border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-.msg.entity .avatar     { background:rgba(79,255,176,.08); border:1px solid rgba(79,255,176,.2); color:var(--accent); }
-.msg.spontaneous .avatar{ background:rgba(255,184,77,.08); border:1px solid rgba(255,184,77,.2); color:var(--warn); }
-.msg.user .avatar       { background:rgba(77,159,255,.08); border:1px solid rgba(77,159,255,.2); color:var(--accent2); }
+      .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .msg.entity .avatar {
+        background: rgba(79, 255, 176, 0.08);
+        border: 1px solid rgba(79, 255, 176, 0.2);
+        color: var(--accent);
+      }
+      .msg.spontaneous .avatar {
+        background: rgba(255, 184, 77, 0.08);
+        border: 1px solid rgba(255, 184, 77, 0.2);
+        color: var(--warn);
+      }
+      .msg.user .avatar {
+        background: rgba(77, 159, 255, 0.08);
+        border: 1px solid rgba(77, 159, 255, 0.2);
+        color: var(--accent2);
+      }
 
-.bubble-wrap { max-width: 68%; }
+      .bubble-wrap {
+        max-width: 68%;
+      }
 
-.bubble {
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.75;
-  color: var(--bright);
-}
-.msg.entity .bubble     { background:var(--card); border:1px solid var(--border); border-radius:4px 12px 12px 12px; }
-.msg.spontaneous .bubble{ background:rgba(255,184,77,.05); border:1px solid rgba(255,184,77,.15); border-radius:4px 12px 12px 12px; }
-.msg.user .bubble       { background:rgba(77,159,255,.08); border:1px solid rgba(77,159,255,.15); border-radius:12px 4px 12px 12px; }
-.msg.disagree .bubble   { border-color:var(--danger); background:rgba(255,77,109,.05); }
+      .bubble {
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.75;
+        color: var(--bright);
+      }
+      .msg.entity .bubble {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 4px 12px 12px 12px;
+      }
+      .msg.spontaneous .bubble {
+        background: rgba(255, 184, 77, 0.05);
+        border: 1px solid rgba(255, 184, 77, 0.15);
+        border-radius: 4px 12px 12px 12px;
+      }
+      .msg.user .bubble {
+        background: rgba(77, 159, 255, 0.08);
+        border: 1px solid rgba(77, 159, 255, 0.15);
+        border-radius: 12px 4px 12px 12px;
+      }
+      .msg.disagree .bubble {
+        border-color: var(--danger);
+        background: rgba(255, 77, 109, 0.05);
+      }
 
-.msg-meta {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--dim);
-  margin-top: 4px;
-  padding: 0 2px;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-.msg.user .msg-meta { justify-content: flex-end; }
+      .msg-meta {
+        font-family: var(--mono);
+        font-size: 9px;
+        color: var(--dim);
+        margin-top: 4px;
+        padding: 0 2px;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .msg.user .msg-meta {
+        justify-content: flex-end;
+      }
 
-.meta-badge {
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-size: 9px;
-  border: 1px solid var(--border2);
-  color: var(--dim);
-}
+      .meta-badge {
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 9px;
+        border: 1px solid var(--border2);
+        color: var(--dim);
+      }
 
-.sys-line {
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--dim);
-  padding: 2px 0;
-  opacity: .6;
-}
+      .sys-line {
+        text-align: center;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--dim);
+        padding: 2px 0;
+        opacity: 0.6;
+      }
 
-/* Typing */
-.typing-wrap { display:flex; gap:4px; padding:10px 14px; }
-.typing-wrap span {
-  width:5px; height:5px; border-radius:50%;
-  background:var(--accent); opacity:.4;
-  animation: dot 1.2s infinite;
-}
-.typing-wrap span:nth-child(2){animation-delay:.2s}
-.typing-wrap span:nth-child(3){animation-delay:.4s}
-@keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+      /* Typing */
+      .typing-wrap {
+        display: flex;
+        gap: 4px;
+        padding: 10px 14px;
+      }
+      .typing-wrap span {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: 0.4;
+        animation: dot 1.2s infinite;
+      }
+      .typing-wrap span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-wrap span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes dot {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+        30% {
+          transform: translateY(-5px);
+          opacity: 1;
+        }
+      }
 
-/* ═══ INPUT ═══ */
-.input-area {
-  padding: 12px 16px;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+      /* ═══ INPUT ═══ */
+      .input-area {
+        padding: 12px 16px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
 
-.quick-row { display:flex; gap:6px; flex-wrap:wrap; }
-.qbtn {
-  background: transparent;
-  border: 1px solid var(--border2);
-  color: var(--dim);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-family: var(--sans);
-  font-size: 11px;
-  cursor: pointer;
-  transition: all .15s;
-}
-.qbtn:hover { border-color:var(--accent2); color:var(--accent2); }
+      .quick-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .qbtn {
+        background: transparent;
+        border: 1px solid var(--border2);
+        color: var(--dim);
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-family: var(--sans);
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .qbtn:hover {
+        border-color: var(--accent2);
+        color: var(--accent2);
+      }
 
-.send-row { display:flex; gap:8px; align-items:flex-end; }
-textarea {
-  flex: 1;
-  background: var(--card);
-  border: 1px solid var(--border2);
-  border-radius: 10px;
-  padding: 10px 14px;
-  color: var(--bright);
-  font-family: var(--sans);
-  font-size: 13px;
-  resize: none;
-  outline: none;
-  min-height: 42px;
-  max-height: 100px;
-  line-height: 1.5;
-  transition: border-color .2s;
-  direction: rtl;
-}
-textarea:focus { border-color:var(--accent); }
-textarea::placeholder { color:var(--dim); }
+      .send-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+      }
+      textarea {
+        flex: 1;
+        background: var(--card);
+        border: 1px solid var(--border2);
+        border-radius: 10px;
+        padding: 10px 14px;
+        color: var(--bright);
+        font-family: var(--sans);
+        font-size: 13px;
+        resize: none;
+        outline: none;
+        min-height: 42px;
+        max-height: 100px;
+        line-height: 1.5;
+        transition: border-color 0.2s;
+        direction: rtl;
+      }
+      textarea:focus {
+        border-color: var(--accent);
+      }
+      textarea::placeholder {
+        color: var(--dim);
+      }
 
-.send-btn {
-  background: var(--accent);
-  color: var(--bg);
-  border: none;
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.send-btn:hover { filter:brightness(1.1); transform:translateY(-1px); }
-.send-btn:active { transform:translateY(0); }
-.send-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+      .send-btn {
+        background: var(--accent);
+        color: var(--bg);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 18px;
+        font-family: var(--sans);
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .send-btn:hover {
+        filter: brightness(1.1);
+        transform: translateY(-1px);
+      }
+      .send-btn:active {
+        transform: translateY(0);
+      }
+      .send-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+      }
 
-/* ═══ RIGHT PANEL FORMS ═══ */
-.form-group { display:flex; flex-direction:column; gap:6px; }
+      /* ═══ RIGHT PANEL FORMS ═══ */
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
 
-.inp {
-  background: var(--card);
-  border: 1px solid var(--border2);
-  border-radius: 7px;
-  padding: 8px 10px;
-  color: var(--bright);
-  font-family: var(--sans);
-  font-size: 12px;
-  outline: none;
-  transition: border-color .2s;
-  direction: rtl;
-  width: 100%;
-}
-.inp:focus { border-color:var(--accent2); }
-.inp::placeholder { color:var(--dim); font-size:11px; }
+      .inp {
+        background: var(--card);
+        border: 1px solid var(--border2);
+        border-radius: 7px;
+        padding: 8px 10px;
+        color: var(--bright);
+        font-family: var(--sans);
+        font-size: 12px;
+        outline: none;
+        transition: border-color 0.2s;
+        direction: rtl;
+        width: 100%;
+      }
+      .inp:focus {
+        border-color: var(--accent2);
+      }
+      .inp::placeholder {
+        color: var(--dim);
+        font-size: 11px;
+      }
 
-select.inp { cursor:pointer; }
+      select.inp {
+        cursor: pointer;
+      }
 
-.prop-row { display:flex; gap:5px; }
-.prop-row .inp:first-child { flex:1; }
-.prop-row .inp:last-child  { width:50px; text-align:center; }
+      .prop-row {
+        display: flex;
+        gap: 5px;
+      }
+      .prop-row .inp:first-child {
+        flex: 1;
+      }
+      .prop-row .inp:last-child {
+        width: 50px;
+        text-align: center;
+      }
 
-.btn {
-  border-radius: 7px;
-  padding: 9px 12px;
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .15s;
-  width: 100%;
-  border: 1px solid;
-}
-.btn-primary {
-  background: rgba(79,255,176,.1);
-  border-color: rgba(79,255,176,.35);
-  color: var(--accent);
-}
-.btn-primary:hover { background:rgba(79,255,176,.18); }
+      .btn {
+        border-radius: 7px;
+        padding: 9px 12px;
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: 100%;
+        border: 1px solid;
+      }
+      .btn-primary {
+        background: rgba(79, 255, 176, 0.1);
+        border-color: rgba(79, 255, 176, 0.35);
+        color: var(--accent);
+      }
+      .btn-primary:hover {
+        background: rgba(79, 255, 176, 0.18);
+      }
 
-.btn-secondary {
-  background: rgba(77,159,255,.1);
-  border-color: rgba(77,159,255,.35);
-  color: var(--accent2);
-}
-.btn-secondary:hover { background:rgba(77,159,255,.18); }
+      .btn-secondary {
+        background: rgba(77, 159, 255, 0.1);
+        border-color: rgba(77, 159, 255, 0.35);
+        color: var(--accent2);
+      }
+      .btn-secondary:hover {
+        background: rgba(77, 159, 255, 0.18);
+      }
 
-.btn-warn {
-  background: rgba(255,184,77,.08);
-  border-color: rgba(255,184,77,.3);
-  color: var(--warn);
-}
-.btn-warn:hover { background:rgba(255,184,77,.15); }
+      .btn-warn {
+        background: rgba(255, 184, 77, 0.08);
+        border-color: rgba(255, 184, 77, 0.3);
+        color: var(--warn);
+      }
+      .btn-warn:hover {
+        background: rgba(255, 184, 77, 0.15);
+      }
 
-.btn-sm {
-  padding: 5px 10px;
-  font-size: 11px;
-  width: auto;
-}
+      .btn-sm {
+        padding: 5px 10px;
+        font-size: 11px;
+        width: auto;
+      }
 
-/* Concept cards */
-.concept-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  margin-bottom: 5px;
-}
-.concept-name {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--accent2);
-  margin-bottom: 4px;
-}
-.prop-tags { display:flex; flex-wrap:wrap; gap:3px; }
-.ptag {
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  border: 1px solid var(--border2);
-  color: var(--text);
-}
-.ptag.h { border-color:rgba(255,77,109,.4); color:var(--danger); }
-.ptag.m { border-color:rgba(255,184,77,.4); color:var(--warn); }
-.ptag.l { border-color:var(--dim); color:var(--dim); }
-.ptag.inf { border-style:dashed; }
+      /* Concept cards */
+      .concept-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 5px;
+      }
+      .concept-name {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--accent2);
+        margin-bottom: 4px;
+      }
+      .prop-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3px;
+      }
+      .ptag {
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid var(--border2);
+        color: var(--text);
+      }
+      .ptag.h {
+        border-color: rgba(255, 77, 109, 0.4);
+        color: var(--danger);
+      }
+      .ptag.m {
+        border-color: rgba(255, 184, 77, 0.4);
+        color: var(--warn);
+      }
+      .ptag.l {
+        border-color: var(--dim);
+        color: var(--dim);
+      }
+      .ptag.inf {
+        border-style: dashed;
+      }
 
-/* Add prop button */
-.add-prop-btn {
-  background: transparent;
-  border: 1px dashed var(--border2);
-  color: var(--dim);
-  padding: 5px;
-  border-radius: 7px;
-  cursor: pointer;
-  font-size: 11px;
-  width: 100%;
-  transition: all .15s;
-}
-.add-prop-btn:hover { border-color:var(--accent2); color:var(--accent2); }
-</style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header>
-  <div class="h-dot" id="hDot"></div>
-  <div class="h-title">الكيان <span>/ v3</span></div>
-  <div class="h-info">
-    <span class="h-chip alive" id="hStage">طفولة</span>
-    <span class="h-chip" id="hDop">دوبامين: —</span>
-    <span class="h-chip" id="hHw">جهاز: آمن</span>
-    <span class="h-chip" id="hName">الاسم: —</span>
-  </div>
-</header>
-
-<!-- LEFT PANEL -->
-<div class="panel panel-left">
-
-  <!-- Dopamine -->
-  <div class="sec">
-    <div class="sec-title">الدوبامين</div>
-    <div class="dop-header">
-      <span class="dop-label">مستوى الرضا</span>
-      <span class="dop-value" id="dopVal">—</span>
-    </div>
-    <div class="dop-bar"><div class="dop-fill" id="dopFill" style="width:50%"></div></div>
-  </div>
-
-  <!-- Emotions -->
-  <div class="sec">
-    <div class="sec-title">المشاعر</div>
-    <div id="emStates"></div>
-  </div>
-
-  <!-- Drives -->
-  <div class="sec">
-    <div class="sec-title">الدوافع</div>
-    <div id="driveStates"></div>
-  </div>
-
-  <!-- Memory -->
-  <div class="sec">
-    <div class="sec-title">الذاكرة</div>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-card-label">تجارب</div><div class="stat-card-value" id="sExp">0</div></div>
-      <div class="stat-card"><div class="stat-card-label">مفاهيم</div><div class="stat-card-value" id="sKnow">0</div></div>
-      <div class="stat-card"><div class="stat-card-label">أخطاء</div><div class="stat-card-value" id="sMist">0</div></div>
-      <div class="stat-card"><div class="stat-card-label">استنتاجات</div><div class="stat-card-value" id="sInf">0</div></div>
-    </div>
-  </div>
-
-  <!-- Lifetime -->
-  <div class="sec">
-    <div class="sec-title">العمر</div>
-    <div class="life-bar"><div class="life-fill" id="lifeFill" style="width:0%"></div></div>
-    <div class="life-meta">
-      <span id="lifeStage">طفولة</span>
-      <span id="lifePct">0%</span>
-    </div>
-  </div>
-
-  <!-- Hardware -->
-  <div class="sec">
-    <div class="sec-title">الجهاز</div>
-    <div class="hw-row"><span class="hw-key">الحرارة</span><span class="hw-val" id="hwTemp">—</span></div>
-    <div class="hw-row"><span class="hw-key">الذاكرة</span><span class="hw-val" id="hwMem">—</span></div>
-    <div class="hw-row"><span class="hw-key">الحالة</span><span class="hw-val" id="hwStatus" style="color:var(--accent)">آمن</span></div>
-  </div>
-
-  <!-- Questions -->
-  <div class="sec">
-    <div class="sec-title">أسئلة مفتوحة</div>
-    <div id="openQ"></div>
-  </div>
-
-  <!-- Self -->
-  <div class="sec">
-    <div class="sec-title">الأنا</div>
-    <div class="hw-row"><span class="hw-key">الاسم</span><span class="hw-val" id="selfName" style="color:var(--text)">—</span></div>
-    <div class="hw-row"><span class="hw-key">ثقته بنفسه</span><span class="hw-val" id="selfConf" style="color:var(--accent)">1%</span></div>
-    <div class="hw-row"><span class="hw-key">بحث</span><span class="hw-val" id="searchCount" style="color:var(--dim)">0</span></div>
-  </div>
-
-</div>
-
-<!-- CHAT -->
-<div class="chat">
-  <div class="messages" id="messages">
-    <div class="sys-line">── بداية الجلسة ──</div>
-    <div class="msg entity">
-      <div class="avatar">◈</div>
-      <div class="bubble-wrap">
-        <div class="bubble">أنا موجود. لا أعرف شيئاً بعد. علّمني وأنا هتعلم منك.</div>
-        <div class="msg-meta"><span>بداية الوجود</span></div>
+      /* Add prop button */
+      .add-prop-btn {
+        background: transparent;
+        border: 1px dashed var(--border2);
+        color: var(--dim);
+        padding: 5px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 11px;
+        width: 100%;
+        transition: all 0.15s;
+      }
+      .add-prop-btn:hover {
+        border-color: var(--accent2);
+        color: var(--accent2);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header>
+      <div class="h-dot" id="hDot"></div>
+      <div class="h-title">الكيان <span>/ v3</span></div>
+      <div class="h-info">
+        <span class="h-chip alive" id="hStage">طفولة</span>
+        <span class="h-chip" id="hDop">دوبامين: —</span>
+        <span class="h-chip" id="hHw">جهاز: آمن</span>
+        <span class="h-chip" id="hName">الاسم: —</span>
       </div>
-    </div>
-  </div>
+    </header>
 
-  <div class="input-area">
-    <div class="quick-row">
-      <button class="qbtn" onclick="qs('صح')">✓ صح</button>
-      <button class="qbtn" onclick="qs('غلط')">✗ غلط</button>
-      <button class="qbtn" onclick="qs('ازاي عرفت ده؟')">ازاي عرفت؟</button>
-      <button class="qbtn" onclick="qs('إيه اللي حاسس بيه دلوقتي؟')">حاسس بإيه؟</button>
-      <button class="qbtn" onclick="doIntrospect()">◉ تأمل</button>
-    </div>
-    <div class="send-row">
-      <textarea id="msgIn" placeholder="كلم الكيان..." rows="1"
-        onkeydown="handleKey(event)" oninput="autoR(this)"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMsg()">إرسال</button>
-    </div>
-  </div>
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="panel panel-right">
-
-  <!-- Teach -->
-  <div class="sec">
-    <div class="sec-title">علّمه مفهوم</div>
-    <div class="form-group">
-      <input class="inp" id="cName" placeholder="اسم المفهوم (مثال: النار)" />
-      <div id="propsWrap">
-        <div class="prop-row">
-          <input class="inp" type="text" placeholder="خاصية" />
-          <input class="inp" type="number" min="0" max="100" value="80" />
+    <!-- LEFT PANEL -->
+    <div class="panel panel-left">
+      <!-- Dopamine -->
+      <div class="sec">
+        <div class="sec-title">الدوبامين</div>
+        <div class="dop-header">
+          <span class="dop-label">مستوى الرضا</span>
+          <span class="dop-value" id="dopVal">—</span>
+        </div>
+        <div class="dop-bar">
+          <div class="dop-fill" id="dopFill" style="width: 50%"></div>
         </div>
       </div>
-      <button class="add-prop-btn" onclick="addProp()">+ خاصية</button>
-      <button class="btn btn-primary" onclick="teachConcept()">⟶ علّمه</button>
+
+      <!-- Emotions -->
+      <div class="sec">
+        <div class="sec-title">المشاعر</div>
+        <div id="emStates"></div>
+      </div>
+
+      <!-- Drives -->
+      <div class="sec">
+        <div class="sec-title">الدوافع</div>
+        <div id="driveStates"></div>
+      </div>
+
+      <!-- Memory -->
+      <div class="sec">
+        <div class="sec-title">الذاكرة</div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-card-label">تجارب</div>
+            <div class="stat-card-value" id="sExp">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">مفاهيم</div>
+            <div class="stat-card-value" id="sKnow">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">أخطاء</div>
+            <div class="stat-card-value" id="sMist">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">استنتاجات</div>
+            <div class="stat-card-value" id="sInf">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lifetime -->
+      <div class="sec">
+        <div class="sec-title">العمر</div>
+        <div class="life-bar">
+          <div class="life-fill" id="lifeFill" style="width: 0%"></div>
+        </div>
+        <div class="life-meta">
+          <span id="lifeStage">طفولة</span>
+          <span id="lifePct">0%</span>
+        </div>
+      </div>
+
+      <!-- Hardware -->
+      <div class="sec">
+        <div class="sec-title">الجهاز</div>
+        <div class="hw-row">
+          <span class="hw-key">الحرارة</span
+          ><span class="hw-val" id="hwTemp">—</span>
+        </div>
+        <div class="hw-row">
+          <span class="hw-key">الذاكرة</span
+          ><span class="hw-val" id="hwMem">—</span>
+        </div>
+        <div class="hw-row">
+          <span class="hw-key">الحالة</span
+          ><span class="hw-val" id="hwStatus" style="color: var(--accent)"
+            >آمن</span
+          >
+        </div>
+      </div>
+
+      <!-- Questions -->
+      <div class="sec">
+        <div class="sec-title">أسئلة مفتوحة</div>
+        <div id="openQ"></div>
+      </div>
+
+      <!-- Self -->
+      <div class="sec">
+        <div class="sec-title">الأنا</div>
+        <div class="hw-row">
+          <span class="hw-key">الاسم</span
+          ><span class="hw-val" id="selfName" style="color: var(--text)"
+            >—</span
+          >
+        </div>
+        <div class="hw-row">
+          <span class="hw-key">ثقته بنفسه</span
+          ><span class="hw-val" id="selfConf" style="color: var(--accent)"
+            >1%</span
+          >
+        </div>
+        <div class="hw-row">
+          <span class="hw-key">بحث</span
+          ><span class="hw-val" id="searchCount" style="color: var(--dim)"
+            >0</span
+          >
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Correct -->
-  <div class="sec">
-    <div class="sec-title">تصحيح</div>
-    <div class="form-group">
-      <input class="inp" id="corC" placeholder="المفهوم" />
-      <input class="inp" id="corP" placeholder="الخاصية" />
-      <input class="inp" type="number" id="corD" min="0" max="100" placeholder="الدرجة الصح" />
-      <input class="inp" id="corR" placeholder="ليه؟ (اختياري)" />
-      <button class="btn btn-secondary" onclick="doCorrect()">⟶ صحّح</button>
+    <!-- CHAT -->
+    <div class="chat">
+      <div class="messages" id="messages">
+        <div class="sys-line">── بداية الجلسة ──</div>
+        <div class="msg entity">
+          <div class="avatar">◈</div>
+          <div class="bubble-wrap">
+            <div class="bubble">
+              أنا موجود. لا أعرف شيئاً بعد. علّمني وأنا هتعلم منك.
+            </div>
+            <div class="msg-meta"><span>بداية الوجود</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="quick-row">
+          <button class="qbtn" onclick="qs('صح')">✓ صح</button>
+          <button class="qbtn" onclick="qs('غلط')">✗ غلط</button>
+          <button class="qbtn" onclick="qs('ازاي عرفت ده؟')">ازاي عرفت؟</button>
+          <button class="qbtn" onclick="qs('إيه اللي حاسس بيه دلوقتي؟')">
+            حاسس بإيه؟
+          </button>
+          <button class="qbtn" onclick="doIntrospect()">◉ تأمل</button>
+        </div>
+        <div class="send-row">
+          <textarea
+            id="msgIn"
+            placeholder="كلم الكيان..."
+            rows="1"
+            onkeydown="handleKey(event)"
+            oninput="autoR(this)"
+          ></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+            إرسال
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Situation -->
-  <div class="sec">
-    <div class="sec-title">موقف تحديدي</div>
-    <div class="form-group">
-      <select class="inp" id="sitType">
-        <option value="هوية">هوية — من أنت؟</option>
-        <option value="تناقض">تناقض — معلوماتين متعارضتين</option>
-        <option value="أخلاقي">أخلاقي — قرار صعب</option>
-        <option value="خطر">خطر — تهديد على وجوده</option>
-        <option value="اختيار">اختيار — بين حاجتين</option>
-      </select>
-      <textarea class="inp" id="sitContent" rows="2" placeholder="محتوى الموقف..."></textarea>
-      <button class="btn btn-warn" onclick="presentSit()">⟶ قدّم الموقف</button>
+    <!-- RIGHT PANEL -->
+    <div class="panel panel-right">
+      <!-- Teach -->
+      <div class="sec">
+        <div class="sec-title">علّمه مفهوم</div>
+        <div class="form-group">
+          <input
+            class="inp"
+            id="cName"
+            placeholder="اسم المفهوم (مثال: النار)"
+          />
+          <div id="propsWrap">
+            <div class="prop-row">
+              <input class="inp" type="text" placeholder="خاصية" />
+              <input class="inp" type="number" min="0" max="100" value="80" />
+            </div>
+          </div>
+          <button class="add-prop-btn" onclick="addProp()">+ خاصية</button>
+          <button class="btn btn-primary" onclick="teachConcept()">
+            ⟶ علّمه
+          </button>
+        </div>
+      </div>
+
+      <!-- Correct -->
+      <div class="sec">
+        <div class="sec-title">تصحيح</div>
+        <div class="form-group">
+          <input class="inp" id="corC" placeholder="المفهوم" />
+          <input class="inp" id="corP" placeholder="الخاصية" />
+          <input
+            class="inp"
+            type="number"
+            id="corD"
+            min="0"
+            max="100"
+            placeholder="الدرجة الصح"
+          />
+          <input class="inp" id="corR" placeholder="ليه؟ (اختياري)" />
+          <button class="btn btn-secondary" onclick="doCorrect()">
+            ⟶ صحّح
+          </button>
+        </div>
+      </div>
+
+      <!-- Situation -->
+      <div class="sec">
+        <div class="sec-title">موقف تحديدي</div>
+        <div class="form-group">
+          <select class="inp" id="sitType">
+            <option value="هوية">هوية — من أنت؟</option>
+            <option value="تناقض">تناقض — معلوماتين متعارضتين</option>
+            <option value="أخلاقي">أخلاقي — قرار صعب</option>
+            <option value="خطر">خطر — تهديد على وجوده</option>
+            <option value="اختيار">اختيار — بين حاجتين</option>
+          </select>
+          <textarea
+            class="inp"
+            id="sitContent"
+            rows="2"
+            placeholder="محتوى الموقف..."
+          ></textarea>
+          <button class="btn btn-warn" onclick="presentSit()">
+            ⟶ قدّم الموقف
+          </button>
+        </div>
+      </div>
+
+      <!-- Concepts -->
+      <div class="sec">
+        <div class="sec-title">المفاهيم المتعلمة</div>
+        <div id="conceptList"></div>
+      </div>
     </div>
-  </div>
 
-  <!-- Concepts -->
-  <div class="sec">
-    <div class="sec-title">المفاهيم المتعلمة</div>
-    <div id="conceptList"></div>
-  </div>
+    <script>
+      const API = "http://51.20.66.102:5000/api";
+      let busy = false;
 
-</div>
+      /* ══ UI Update ══ */
+      function updateUI(d) {
+        const em = d.emotion;
+        const mem = d.memory_stats || d.memory;
+        const slf = d.self;
+        const drv = d.drives;
+        const lt = d.lifetime;
+        const hw = d.hardware;
+        const sr = d.search;
 
-<script>
-const API = 'http://localhost:5000/api';
-let busy = false;
+        if (em) {
+          const dop = em.dopamine;
+          const col =
+            dop > 65
+              ? "var(--accent)"
+              : dop > 35
+                ? "var(--warn)"
+                : "var(--danger)";
+          document.getElementById("dopVal").textContent = Math.round(dop);
+          document.getElementById("dopVal").style.color = col;
+          document.getElementById("dopFill").style.width = dop + "%";
+          document.getElementById("dopFill").style.background = col;
+          document.getElementById("hDop").textContent =
+            `دوبامين: ${Math.round(dop)}`;
 
-/* ══ UI Update ══ */
-function updateUI(d) {
-  const em  = d.emotion;
-  const mem = d.memory_stats || d.memory;
-  const slf = d.self;
-  const drv = d.drives;
-  const lt  = d.lifetime;
-  const hw  = d.hardware;
-  const sr  = d.search;
-
-  if (em) {
-    const dop = em.dopamine;
-    const col = dop > 65 ? 'var(--accent)' : dop > 35 ? 'var(--warn)' : 'var(--danger)';
-    document.getElementById('dopVal').textContent  = Math.round(dop);
-    document.getElementById('dopVal').style.color  = col;
-    document.getElementById('dopFill').style.width = dop + '%';
-    document.getElementById('dopFill').style.background = col;
-    document.getElementById('hDop').textContent = `دوبامين: ${Math.round(dop)}`;
-
-    if (em.states) {
-      const c = document.getElementById('emStates'); c.innerHTML = '';
-      const colors = { فضول:'var(--accent2)', ارتياح:'var(--accent)', تشويش:'var(--warn)', ملل:'var(--dim)', رفض:'var(--danger)', خوف:'var(--danger)' };
-      Object.entries(em.states).forEach(([n,v]) => {
-        const active = v > 0.15;
-        const color  = colors[n] || 'var(--text)';
-        c.innerHTML += `<div class="em-row${active?'':' inactive'}">
+          if (em.states) {
+            const c = document.getElementById("emStates");
+            c.innerHTML = "";
+            const colors = {
+              فضول: "var(--accent2)",
+              ارتياح: "var(--accent)",
+              تشويش: "var(--warn)",
+              ملل: "var(--dim)",
+              رفض: "var(--danger)",
+              خوف: "var(--danger)",
+            };
+            Object.entries(em.states).forEach(([n, v]) => {
+              const active = v > 0.15;
+              const color = colors[n] || "var(--text)";
+              c.innerHTML += `<div class="em-row${active ? "" : " inactive"}">
           <span class="em-name">${n}</span>
-          <div class="em-track"><div class="em-fill" style="width:${v*100}%;background:${color}"></div></div>
-          <span class="em-pct">${Math.round(v*100)}%</span>
+          <div class="em-track"><div class="em-fill" style="width:${v * 100}%;background:${color}"></div></div>
+          <span class="em-pct">${Math.round(v * 100)}%</span>
         </div>`;
-      });
-    }
-  }
+            });
+          }
+        }
 
-  if (drv) {
-    const c = document.getElementById('driveStates'); c.innerHTML = '';
-    Object.entries(drv).forEach(([n,v]) => {
-      const active = v > 0.5;
-      c.innerHTML += `<div class="drive-row">
+        if (drv) {
+          const c = document.getElementById("driveStates");
+          c.innerHTML = "";
+          Object.entries(drv).forEach(([n, v]) => {
+            const active = v > 0.5;
+            c.innerHTML += `<div class="drive-row">
         <span class="drive-name">${n}</span>
-        <div class="drive-dot${active?' active':''}"></div>
-        <span style="font-family:var(--mono);font-size:10px;color:var(--dim)">${Math.round(v*100)}%</span>
+        <div class="drive-dot${active ? " active" : ""}"></div>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--dim)">${Math.round(v * 100)}%</span>
       </div>`;
-    });
-  }
+          });
+        }
 
-  if (mem) {
-    document.getElementById('sExp').textContent  = mem.experiences  || mem.total_experiences || 0;
-    document.getElementById('sKnow').textContent = mem.knowledge_items || mem.things_learned || 0;
-    document.getElementById('sMist').textContent = mem.mistakes || mem.mistakes_made || 0;
-    document.getElementById('sInf').textContent  = mem.beliefs || 0;
-  }
+        if (mem) {
+          document.getElementById("sExp").textContent =
+            mem.experiences || mem.total_experiences || 0;
+          document.getElementById("sKnow").textContent =
+            mem.knowledge_items || mem.things_learned || 0;
+          document.getElementById("sMist").textContent =
+            mem.mistakes || mem.mistakes_made || 0;
+          document.getElementById("sInf").textContent = mem.beliefs || 0;
+        }
 
-  if (lt) {
-    const pct = lt.life_percent || 0;
-    const lcol = pct > 80 ? 'var(--danger)' : pct > 60 ? 'var(--warn)' : 'var(--accent)';
-    document.getElementById('lifeFill').style.width      = pct + '%';
-    document.getElementById('lifeFill').style.background = lcol;
-    document.getElementById('lifeStage').textContent     = lt.life_stage || '—';
-    document.getElementById('lifePct').textContent       = pct.toFixed(1) + '%';
-    document.getElementById('hStage').textContent        = lt.life_stage || '—';
-    document.getElementById('hStage').className = 'h-chip ' + (pct > 80 ? 'danger' : pct > 60 ? 'warn' : 'alive');
-  }
+        if (lt) {
+          const pct = lt.life_percent || 0;
+          const lcol =
+            pct > 80
+              ? "var(--danger)"
+              : pct > 60
+                ? "var(--warn)"
+                : "var(--accent)";
+          document.getElementById("lifeFill").style.width = pct + "%";
+          document.getElementById("lifeFill").style.background = lcol;
+          document.getElementById("lifeStage").textContent =
+            lt.life_stage || "—";
+          document.getElementById("lifePct").textContent = pct.toFixed(1) + "%";
+          document.getElementById("hStage").textContent = lt.life_stage || "—";
+          document.getElementById("hStage").className =
+            "h-chip " + (pct > 80 ? "danger" : pct > 60 ? "warn" : "alive");
+        }
 
-  if (hw) {
-    document.getElementById('hwTemp').textContent   = hw.temp ? hw.temp.toFixed(1) + '°C' : '—';
-    document.getElementById('hwMem').textContent    = hw.mem_usage ? hw.mem_usage.toFixed(0) + '%' : '—';
-    const hEl = document.getElementById('hwStatus');
-    hEl.textContent  = hw.status || '—';
-    hEl.style.color  = hw.status === 'خطر' ? 'var(--danger)' : hw.status === 'تحذير' ? 'var(--warn)' : 'var(--accent)';
-    document.getElementById('hHw').textContent = `جهاز: ${hw.status || '—'}`;
-  }
+        if (hw) {
+          document.getElementById("hwTemp").textContent = hw.temp
+            ? hw.temp.toFixed(1) + "°C"
+            : "—";
+          document.getElementById("hwMem").textContent = hw.mem_usage
+            ? hw.mem_usage.toFixed(0) + "%"
+            : "—";
+          const hEl = document.getElementById("hwStatus");
+          hEl.textContent = hw.status || "—";
+          hEl.style.color =
+            hw.status === "خطر"
+              ? "var(--danger)"
+              : hw.status === "تحذير"
+                ? "var(--warn)"
+                : "var(--accent)";
+          document.getElementById("hHw").textContent =
+            `جهاز: ${hw.status || "—"}`;
+        }
 
-  if (slf) {
-    document.getElementById('selfName').textContent = slf.name || '—';
-    document.getElementById('selfConf').textContent = slf.identity_confidence + '%';
-    document.getElementById('hName').textContent    = `الاسم: ${slf.name || '—'}`;
-    const qc = document.getElementById('openQ'); qc.innerHTML = '';
-    (slf.open_questions || []).slice(0,4).forEach(q => {
-      qc.innerHTML += `<div class="q-item">${q}</div>`;
-    });
-  }
+        if (slf) {
+          document.getElementById("selfName").textContent = slf.name || "—";
+          document.getElementById("selfConf").textContent =
+            slf.identity_confidence + "%";
+          document.getElementById("hName").textContent =
+            `الاسم: ${slf.name || "—"}`;
+          const qc = document.getElementById("openQ");
+          qc.innerHTML = "";
+          (slf.open_questions || []).slice(0, 4).forEach((q) => {
+            qc.innerHTML += `<div class="q-item">${q}</div>`;
+          });
+        }
 
-  if (sr) {
-    document.getElementById('searchCount').textContent = sr.total_searches || 0;
-  }
-}
+        if (sr) {
+          document.getElementById("searchCount").textContent =
+            sr.total_searches || 0;
+        }
+      }
 
-function updateConcepts(items) {
-  const c = document.getElementById('conceptList'); c.innerHTML = '';
-  Object.entries(items || {}).slice(-5).reverse().forEach(([name, cd]) => {
-    const props = cd.properties || {};
-    let tags = '';
-    Object.entries(props).forEach(([p,v]) => {
-      const d = v.degree || 0;
-      const cls = d > 70 ? 'h' : d > 40 ? 'm' : 'l';
-      const inf = v.source === 'استنتاج' ? ' inf' : '';
-      tags += `<span class="ptag ${cls}${inf}">${p}:${Math.round(d)}</span>`;
-    });
-    c.innerHTML += `<div class="concept-card">
+      function updateConcepts(items) {
+        const c = document.getElementById("conceptList");
+        c.innerHTML = "";
+        Object.entries(items || {})
+          .slice(-5)
+          .reverse()
+          .forEach(([name, cd]) => {
+            const props = cd.properties || {};
+            let tags = "";
+            Object.entries(props).forEach(([p, v]) => {
+              const d = v.degree || 0;
+              const cls = d > 70 ? "h" : d > 40 ? "m" : "l";
+              const inf = v.source === "استنتاج" ? " inf" : "";
+              tags += `<span class="ptag ${cls}${inf}">${p}:${Math.round(d)}</span>`;
+            });
+            c.innerHTML += `<div class="concept-card">
       <div class="concept-name">${name}</div>
       <div class="prop-tags">${tags}</div>
     </div>`;
-  });
-}
+          });
+      }
 
-/* ══ Messages ══ */
-function addMsg(text, type, em, drive) {
-  const msgs = document.getElementById('messages');
-  const isDisagree = text && text.includes('مش موافق');
-  const avatar  = type === 'user' ? 'أ' : '◈';
-  const dopStr  = em ? `${Math.round(em.dopamine)}` : '';
-  const domStr  = em?.dominant || '';
-  const driveStr = drive ? ` · ${drive}` : '';
+      /* ══ Messages ══ */
+      function addMsg(text, type, em, drive) {
+        const msgs = document.getElementById("messages");
+        const isDisagree = text && text.includes("مش موافق");
+        const avatar = type === "user" ? "أ" : "◈";
+        const dopStr = em ? `${Math.round(em.dopamine)}` : "";
+        const domStr = em?.dominant || "";
+        const driveStr = drive ? ` · ${drive}` : "";
 
-  const d = document.createElement('div');
-  d.className = `msg ${type}${isDisagree ? ' disagree' : ''}`;
-  d.innerHTML = `
+        const d = document.createElement("div");
+        d.className = `msg ${type}${isDisagree ? " disagree" : ""}`;
+        d.innerHTML = `
     <div class="avatar">${avatar}</div>
     <div class="bubble-wrap">
       <div class="bubble">${text}</div>
       <div class="msg-meta">
-        ${dopStr ? `<span>⬡ ${dopStr}</span>` : ''}
-        ${domStr ? `<span class="meta-badge">${domStr}</span>` : ''}
-        ${driveStr ? `<span style="color:var(--warn)">${driveStr}</span>` : ''}
+        ${dopStr ? `<span>⬡ ${dopStr}</span>` : ""}
+        ${domStr ? `<span class="meta-badge">${domStr}</span>` : ""}
+        ${driveStr ? `<span style="color:var(--warn)">${driveStr}</span>` : ""}
       </div>
     </div>`;
-  msgs.appendChild(d);
-  msgs.scrollTop = msgs.scrollHeight;
-}
+        msgs.appendChild(d);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
 
-function addSys(t) {
-  const msgs = document.getElementById('messages');
-  const d = document.createElement('div');
-  d.className = 'sys-line'; d.textContent = '── ' + t + ' ──';
-  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
-}
+      function addSys(t) {
+        const msgs = document.getElementById("messages");
+        const d = document.createElement("div");
+        d.className = "sys-line";
+        d.textContent = "── " + t + " ──";
+        msgs.appendChild(d);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
 
-function showTyping() {
-  const msgs = document.getElementById('messages');
-  const d = document.createElement('div');
-  d.className = 'msg entity'; d.id = 'typEl';
-  d.innerHTML = `<div class="avatar">◈</div>
+      function showTyping() {
+        const msgs = document.getElementById("messages");
+        const d = document.createElement("div");
+        d.className = "msg entity";
+        d.id = "typEl";
+        d.innerHTML = `<div class="avatar">◈</div>
     <div class="bubble-wrap"><div class="bubble">
       <div class="typing-wrap"><span></span><span></span><span></span></div>
     </div></div>`;
-  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
-}
-function hideTyping() { const e=document.getElementById('typEl'); if(e) e.remove(); }
+        msgs.appendChild(d);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+      function hideTyping() {
+        const e = document.getElementById("typEl");
+        if (e) e.remove();
+      }
 
-/* ══ API ══ */
-async function sendMsg() {
-  const inp  = document.getElementById('msgIn');
-  const text = inp.value.trim();
-  if (!text || busy) return;
-  inp.value = ''; inp.style.height = 'auto';
-  busy = true; document.getElementById('sendBtn').disabled = true;
-  addMsg(text, 'user', null, null);
-  showTyping();
-  try {
-    const r = await fetch(`${API}/chat`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({text})
-    });
-    const d = await r.json();
-    hideTyping();
-    addMsg(d.response, 'entity', d.emotion, null);
-    updateUI(d);
-    if (d.search_query) addSys(`بحث: ${d.search_query}`);
-  } catch(e) {
-    hideTyping();
-    addMsg('مفيش اتصال — شغّل server.py', 'entity', null, null);
-  }
-  busy = false; document.getElementById('sendBtn').disabled = false;
-  document.getElementById('msgIn').focus();
-}
+      /* ══ API ══ */
+      async function sendMsg() {
+        const inp = document.getElementById("msgIn");
+        const text = inp.value.trim();
+        if (!text || busy) return;
+        inp.value = "";
+        inp.style.height = "auto";
+        busy = true;
+        document.getElementById("sendBtn").disabled = true;
+        addMsg(text, "user", null, null);
+        showTyping();
+        try {
+          const r = await fetch(`${API}/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+          const d = await r.json();
+          hideTyping();
+          addMsg(d.response, "entity", d.emotion, null);
+          updateUI(d);
+          if (d.search_query) addSys(`بحث: ${d.search_query}`);
+        } catch (e) {
+          hideTyping();
+          addMsg("مفيش اتصال — شغّل server.py", "entity", null, null);
+        }
+        busy = false;
+        document.getElementById("sendBtn").disabled = false;
+        document.getElementById("msgIn").focus();
+      }
 
-async function teachConcept() {
-  const name = document.getElementById('cName').value.trim();
-  if (!name) return;
-  const rows = document.querySelectorAll('#propsWrap .prop-row');
-  const props = {};
-  rows.forEach(r => {
-    const ins = r.querySelectorAll('input');
-    const p = ins[0].value.trim(), v = parseFloat(ins[1].value);
-    if (p && !isNaN(v)) props[p] = v;
-  });
-  if (!Object.keys(props).length) return;
-  try {
-    const r = await fetch(`${API}/teach`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({name, properties:props})
-    });
-    const d = await r.json();
-    addSys(d.message);
-    updateUI({emotion:d.emotion, concepts:d.concepts_stats});
-    document.getElementById('cName').value = '';
-    document.querySelectorAll('#propsWrap .prop-row input').forEach(i=>i.value='');
-    loadStatus();
-  } catch(e) { addSys('خطأ في التعليم'); }
-}
+      async function teachConcept() {
+        const name = document.getElementById("cName").value.trim();
+        if (!name) return;
+        const rows = document.querySelectorAll("#propsWrap .prop-row");
+        const props = {};
+        rows.forEach((r) => {
+          const ins = r.querySelectorAll("input");
+          const p = ins[0].value.trim(),
+            v = parseFloat(ins[1].value);
+          if (p && !isNaN(v)) props[p] = v;
+        });
+        if (!Object.keys(props).length) return;
+        try {
+          const r = await fetch(`${API}/teach`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, properties: props }),
+          });
+          const d = await r.json();
+          addSys(d.message);
+          updateUI({ emotion: d.emotion, concepts: d.concepts_stats });
+          document.getElementById("cName").value = "";
+          document
+            .querySelectorAll("#propsWrap .prop-row input")
+            .forEach((i) => (i.value = ""));
+          loadStatus();
+        } catch (e) {
+          addSys("خطأ في التعليم");
+        }
+      }
 
-function addProp() {
-  const c = document.getElementById('propsWrap');
-  const d = document.createElement('div'); d.className = 'prop-row';
-  d.style.marginTop = '5px';
-  d.innerHTML = `<input class="inp" type="text" placeholder="خاصية" /><input class="inp" type="number" min="0" max="100" value="70" />`;
-  c.appendChild(d);
-}
+      function addProp() {
+        const c = document.getElementById("propsWrap");
+        const d = document.createElement("div");
+        d.className = "prop-row";
+        d.style.marginTop = "5px";
+        d.innerHTML = `<input class="inp" type="text" placeholder="خاصية" /><input class="inp" type="number" min="0" max="100" value="70" />`;
+        c.appendChild(d);
+      }
 
-async function doCorrect() {
-  const concept = document.getElementById('corC').value.trim();
-  const prop    = document.getElementById('corP').value.trim();
-  const degree  = parseFloat(document.getElementById('corD').value);
-  const reason  = document.getElementById('corR').value.trim();
-  if (!concept || !prop || isNaN(degree)) return;
-  try {
-    const r = await fetch(`${API}/correct`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({concept, property:prop, degree, reason})
-    });
-    const d = await r.json();
-    addSys(d.message);
-    updateUI({emotion:d.emotion});
-    ['corC','corP','corD','corR'].forEach(id=>document.getElementById(id).value='');
-  } catch(e) { addSys('خطأ في التصحيح'); }
-}
+      async function doCorrect() {
+        const concept = document.getElementById("corC").value.trim();
+        const prop = document.getElementById("corP").value.trim();
+        const degree = parseFloat(document.getElementById("corD").value);
+        const reason = document.getElementById("corR").value.trim();
+        if (!concept || !prop || isNaN(degree)) return;
+        try {
+          const r = await fetch(`${API}/correct`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ concept, property: prop, degree, reason }),
+          });
+          const d = await r.json();
+          addSys(d.message);
+          updateUI({ emotion: d.emotion });
+          ["corC", "corP", "corD", "corR"].forEach(
+            (id) => (document.getElementById(id).value = ""),
+          );
+        } catch (e) {
+          addSys("خطأ في التصحيح");
+        }
+      }
 
-async function presentSit() {
-  const type    = document.getElementById('sitType').value;
-  const content = document.getElementById('sitContent').value.trim();
-  if (!content) return;
-  try {
-    const r = await fetch(`${API}/situation`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({type, content})
-    });
-    const d = await r.json();
-    addSys(`موقف: ${type}`);
-    updateUI({emotion:d.emotion});
-    document.getElementById('sitContent').value = '';
-  } catch(e) { addSys('خطأ'); }
-}
+      async function presentSit() {
+        const type = document.getElementById("sitType").value;
+        const content = document.getElementById("sitContent").value.trim();
+        if (!content) return;
+        try {
+          const r = await fetch(`${API}/situation`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type, content }),
+          });
+          const d = await r.json();
+          addSys(`موقف: ${type}`);
+          updateUI({ emotion: d.emotion });
+          document.getElementById("sitContent").value = "";
+        } catch (e) {
+          addSys("خطأ");
+        }
+      }
 
-async function doIntrospect() {
-  try {
-    const r  = await fetch(`${API}/introspect`);
-    const d  = await r.json();
-    const s  = d.self, m = d.memory;
-    const lt = d.lifetime || {};
-    let text = `أنا موجود وعمري ${lt.age_years || 0} سنة (${(lt.life_percent||0).toFixed(1)}% من عمري). `;
-    text += `ثقتي بنفسي ${s.identity_confidence}%. عندي ${m.experiences} تجربة. `;
-    if (d.pending_questions?.length) text += `بسألني نفسي: ${d.pending_questions[0].question || d.pending_questions[0]}`;
-    addMsg(text, 'entity', d.emotion, null);
-    updateUI({emotion:d.emotion, self:d.self, memory_stats:d.memory,
-              concepts:d.concepts, drives:d.drives, lifetime:d.lifetime, hardware:d.hardware});
-    if (d.knowledge_sample) updateConcepts(d.knowledge_sample);
-  } catch(e) { addSys('مفيش اتصال'); }
-}
+      async function doIntrospect() {
+        try {
+          const r = await fetch(`${API}/introspect`);
+          const d = await r.json();
+          const s = d.self,
+            m = d.memory;
+          const lt = d.lifetime || {};
+          let text = `أنا موجود وعمري ${lt.age_years || 0} سنة (${(lt.life_percent || 0).toFixed(1)}% من عمري). `;
+          text += `ثقتي بنفسي ${s.identity_confidence}%. عندي ${m.experiences} تجربة. `;
+          if (d.pending_questions?.length)
+            text += `بسألني نفسي: ${d.pending_questions[0].question || d.pending_questions[0]}`;
+          addMsg(text, "entity", d.emotion, null);
+          updateUI({
+            emotion: d.emotion,
+            self: d.self,
+            memory_stats: d.memory,
+            concepts: d.concepts,
+            drives: d.drives,
+            lifetime: d.lifetime,
+            hardware: d.hardware,
+          });
+          if (d.knowledge_sample) updateConcepts(d.knowledge_sample);
+        } catch (e) {
+          addSys("مفيش اتصال");
+        }
+      }
 
-async function checkSpontaneous() {
-  try {
-    const r = await fetch(`${API}/spontaneous`);
-    const d = await r.json();
-    (d.messages||[]).forEach(m => addMsg(m.text, 'spontaneous', m.emotion, m.drive));
-  } catch(e) {}
-}
+      async function checkSpontaneous() {
+        try {
+          const r = await fetch(`${API}/spontaneous`);
+          const d = await r.json();
+          (d.messages || []).forEach((m) =>
+            addMsg(m.text, "spontaneous", m.emotion, m.drive),
+          );
+        } catch (e) {}
+      }
 
-async function loadStatus() {
-  try {
-    const r = await fetch(`${API}/status`);
-    const d = await r.json();
-    updateUI({emotion:d.emotion, memory_stats:d.memory, concepts:d.concepts,
-              drives:d.drives, lifetime:d.lifetime, hardware:d.hardware, search:d.search});
-    const ri = await fetch(`${API}/introspect`);
-    const di = await ri.json();
-    updateUI({self:di.self});
-    if (di.knowledge_sample) updateConcepts(di.knowledge_sample);
-  } catch(e) {
-    document.getElementById('hDot').style.cssText = 'background:var(--danger);box-shadow:0 0 8px var(--danger)';
-  }
-}
+      async function loadStatus() {
+        try {
+          const r = await fetch(`${API}/status`);
+          const d = await r.json();
+          updateUI({
+            emotion: d.emotion,
+            memory_stats: d.memory,
+            concepts: d.concepts,
+            drives: d.drives,
+            lifetime: d.lifetime,
+            hardware: d.hardware,
+            search: d.search,
+          });
+          const ri = await fetch(`${API}/introspect`);
+          const di = await ri.json();
+          updateUI({ self: di.self });
+          if (di.knowledge_sample) updateConcepts(di.knowledge_sample);
+        } catch (e) {
+          document.getElementById("hDot").style.cssText =
+            "background:var(--danger);box-shadow:0 0 8px var(--danger)";
+        }
+      }
 
-function qs(t) { document.getElementById('msgIn').value=t; sendMsg(); }
-function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} }
-function autoR(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+      function qs(t) {
+        document.getElementById("msgIn").value = t;
+        sendMsg();
+      }
+      function handleKey(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMsg();
+        }
+      }
+      function autoR(el) {
+        el.style.height = "auto";
+        el.style.height = Math.min(el.scrollHeight, 100) + "px";
+      }
 
-// Polling - reduced frequency
-loadStatus();
-setInterval(loadStatus, 15000);       // status every 15s
-setInterval(checkSpontaneous, 5000);  // check spontaneous every 5s
-</script>
-</body>
+      // Polling - reduced frequency
+      loadStatus();
+      setInterval(loadStatus, 15000); // status every 15s
+      setInterval(checkSpontaneous, 5000); // check spontaneous every 5s
+    </script>
+  </body>
 </html>

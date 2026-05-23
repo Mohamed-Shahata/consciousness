@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الكيان</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Noto+Kufi+Arabic:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050508; --surface:#0d0d14; --border:#1a1a2e;
+  --accent:#00ff88; --accent2:#0088ff; --danger:#ff3355;
+  --warn:#ffaa00; --text:#c8d0e0; --dim:#505878; --bright:#eef2ff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Noto Kufi Arabic',sans-serif;
+  height:100vh;display:grid;grid-template-columns:260px 1fr 250px;
+  grid-template-rows:56px 1fr;overflow:hidden}
+
+/* HEADER */
+header{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;
+  color:var(--accent);letter-spacing:2px}
+.logo span{color:var(--dim);font-weight:300}
+#headerStatus{font-family:'IBM Plex Mono',monospace;font-size:11px;
+  color:var(--dim);margin-right:auto}
+
+/* LEFT PANEL */
+.panel{background:var(--surface);padding:16px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:16px}
+.panel-left{border-left:1px solid var(--border)}
+.panel-right{border-right:1px solid var(--border)}
+.sec-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);
+  letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);
+  padding-bottom:6px;margin-bottom:8px}
+
+/* Dopamine */
+.dop-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.dop-val{font-family:'IBM Plex Mono',monospace;color:var(--accent);font-weight:600;transition:color .5s}
+.bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.bar-fill{height:100%;border-radius:2px;transition:width .8s ease,background .5s}
+
+/* Emotions */
+.em-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 8px;border-radius:6px;border:1px solid transparent;transition:all .3s;margin-bottom:4px}
+.em-row.dom{border-color:var(--accent);background:rgba(0,255,136,.05)}
+.em-name{font-size:12px}
+.em-mini{width:50px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin:0 6px}
+.em-mini-fill{height:100%;background:var(--accent2);border-radius:2px;transition:width .5s}
+.em-pct{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);width:24px}
+
+/* Stats */
+.stat-row{display:flex;justify-content:space-between;padding:3px 0;
+  font-size:12px;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border:none}
+.stat-k{color:var(--dim)}
+.stat-v{font-family:'IBM Plex Mono',monospace;color:var(--accent)}
+
+/* Drives */
+.drive-row{display:flex;justify-content:space-between;align-items:center;
+  padding:4px 0;font-size:11px}
+.drive-name{color:var(--dim)}
+.drive-bar{width:60px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin:0 6px}
+.drive-fill{height:100%;background:var(--warn);border-radius:2px;transition:width .5s}
+.drive-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);width:28px;text-align:left}
+
+/* Questions */
+.q-item{font-size:11px;color:var(--dim);padding:4px 8px;
+  border-right:2px solid var(--accent2);margin-bottom:4px;line-height:1.5}
+
+/* CHAT */
+.chat{display:flex;flex-direction:column;overflow:hidden}
+.messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.msg{display:flex;gap:10px;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+.avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;flex-shrink:0}
+.msg.entity .avatar{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--accent)}
+.msg.user .avatar{background:rgba(0,136,255,.1);border:1px solid rgba(0,136,255,.3);color:var(--accent2)}
+.msg.spontaneous .avatar{background:rgba(255,170,0,.1);border:1px solid rgba(255,170,0,.3);color:var(--warn)}
+.bubble{max-width:65%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.7}
+.msg.entity .bubble{background:var(--surface);border:1px solid var(--border);border-radius:4px 12px 12px 12px;color:var(--bright)}
+.msg.user .bubble{background:rgba(0,136,255,.1);border:1px solid rgba(0,136,255,.2);border-radius:12px 4px 12px 12px;color:var(--bright)}
+.msg.spontaneous .bubble{background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.2);border-radius:4px 12px 12px 12px;color:var(--bright)}
+.msg.disagree .bubble{border-color:var(--danger);background:rgba(255,51,85,.05)}
+.meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);margin-top:3px;padding:0 4px}
+.badge{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;border:1px solid;margin-left:4px}
+.sys-msg{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);padding:3px 0}
+
+/* Typing */
+.typing{display:flex;gap:4px;padding:10px 14px}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:ty 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes ty{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+/* INPUT */
+.input-area{padding:14px 20px;background:var(--surface);border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:8px}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.qbtn{background:transparent;border:1px solid var(--border);color:var(--dim);
+  padding:3px 10px;border-radius:20px;font-family:'Noto Kufi Arabic',sans-serif;
+  font-size:11px;cursor:pointer;transition:all .2s}
+.qbtn:hover{border-color:var(--accent2);color:var(--accent2)}
+.input-row{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px;color:var(--bright);font-family:'Noto Kufi Arabic',sans-serif;
+  font-size:13px;resize:none;outline:none;min-height:44px;max-height:110px;
+  line-height:1.5;transition:border-color .2s;direction:rtl}
+textarea:focus{border-color:var(--accent)}
+textarea::placeholder{color:var(--dim)}
+.send-btn{background:var(--accent);color:var(--bg);border:none;border-radius:10px;
+  padding:10px 18px;font-family:'Noto Kufi Arabic',sans-serif;font-size:13px;
+  font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.send-btn:hover{background:#00cc6a;transform:translateY(-1px)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* RIGHT PANEL */
+.teach-form{display:flex;flex-direction:column;gap:8px}
+.inp{background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px;color:var(--bright);font-family:'Noto Kufi Arabic',sans-serif;
+  font-size:12px;outline:none;transition:border-color .2s;direction:rtl;width:100%}
+.inp:focus{border-color:var(--accent2)}
+.inp::placeholder{color:var(--dim);font-size:11px}
+.prop-row{display:flex;gap:6px;align-items:center}
+.prop-row input[type=text]{flex:1}
+.prop-row input[type=number]{width:56px;text-align:center}
+.add-prop{background:transparent;border:1px dashed var(--border);color:var(--dim);
+  padding:5px;border-radius:6px;cursor:pointer;font-size:11px;width:100%;transition:all .2s}
+.add-prop:hover{border-color:var(--accent2);color:var(--accent2)}
+.teach-btn{background:rgba(0,136,255,.15);border:1px solid rgba(0,136,255,.4);
+  color:var(--accent2);padding:9px;border-radius:8px;font-family:'Noto Kufi Arabic',sans-serif;
+  font-size:12px;cursor:pointer;transition:all .2s;width:100%}
+.teach-btn:hover{background:rgba(0,136,255,.25)}
+.intr-btn{background:rgba(255,170,0,.1);border:1px solid rgba(255,170,0,.3);
+  color:var(--warn);padding:9px;border-radius:8px;font-family:'Noto Kufi Arabic',sans-serif;
+  font-size:12px;cursor:pointer;transition:all .2s;width:100%}
+.intr-btn:hover{background:rgba(255,170,0,.2)}
+
+/* Concept card */
+.concept-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px;margin-bottom:6px}
+.concept-name{color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:4px}
+.prop-tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;
+  margin:2px;border:1px solid var(--border);color:var(--text)}
+.prop-tag.high{border-color:var(--danger);color:var(--danger)}
+.prop-tag.med{border-color:var(--warn);color:var(--warn)}
+.prop-tag.low{border-color:var(--dim);color:var(--dim)}
+.prop-tag.inferred{border-style:dashed}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot" id="dot"></div>
+  <div class="logo">الكيان <span>/ v3</span></div>
+  <div id="headerStatus" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);margin-right:auto">جاري الاتصال...</div>
+</header>
+
+<!-- LEFT -->
+<div class="panel panel-left">
+  <div>
+    <div class="sec-label">الدوبامين</div>
+    <div class="dop-row">
+      <span style="font-size:11px;color:var(--dim)">مستوى الرضا</span>
+      <span class="dop-val" id="dopVal">50</span>
+    </div>
+    <div class="bar"><div class="bar-fill" id="dopFill" style="width:50%;background:var(--accent)"></div></div>
+  </div>
+
+  <div>
+    <div class="sec-label">المشاعر</div>
+    <div id="emotionStates"></div>
+  </div>
+
+  <div>
+    <div class="sec-label">الدوافع</div>
+    <div id="driveStates"></div>
+  </div>
+
+  <div>
+    <div class="sec-label">الذاكرة</div>
+    <div class="stat-row"><span class="stat-k">تجارب</span><span class="stat-v" id="sExp">0</span></div>
+    <div class="stat-row"><span class="stat-k">مفاهيم</span><span class="stat-v" id="sKnow">0</span></div>
+    <div class="stat-row"><span class="stat-k">أخطاء</span><span class="stat-v" id="sMist">0</span></div>
+    <div class="stat-row"><span class="stat-k">شبكة المفاهيم</span><span class="stat-v" id="sCon">0</span></div>
+    <div class="stat-row"><span class="stat-k">استنتاجات</span><span class="stat-v" id="sInf">0</span></div>
+  </div>
+
+  <div>
+    <div class="sec-label">أسئلة مفتوحة</div>
+    <div id="openQ"></div>
+  </div>
+
+  <div>
+    <div class="sec-label">الأنا</div>
+    <div style="font-size:11px;color:var(--dim)">ثقته بنفسه: <span style="color:var(--accent);font-family:monospace" id="selfConf">0%</span></div>
+    <div style="font-size:11px;color:var(--dim);margin-top:3px">الاسم: <span style="color:var(--text)" id="selfName">مجهول</span></div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="chat">
+  <div class="messages" id="messages">
+    <div class="sys-msg">── بداية الجلسة ──</div>
+    <div class="msg entity">
+      <div class="avatar">◈</div>
+      <div>
+        <div class="bubble">أنا موجود. لا أعرف شيئاً بعد. علّمني وأنا هتعلم منك.</div>
+        <div class="meta">بداية الوجود</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="quick">
+      <button class="qbtn" onclick="qs('صح')">✓ صح</button>
+      <button class="qbtn" onclick="qs('غلط')">✗ غلط</button>
+      <button class="qbtn" onclick="qs('ازاي عرفت ده؟')">ازاي عرفت؟</button>
+      <button class="qbtn" onclick="qs('إيه اللي حاسس بيه دلوقتي؟')">حاسس بإيه؟</button>
+      <button class="qbtn" onclick="doIntrospect()">◉ تأمل</button>
+    </div>
+    <div class="input-row">
+      <textarea id="msgIn" placeholder="كلم الكيان..." rows="1"
+        onkeydown="handleKey(event)" oninput="autoR(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="send()">إرسال</button>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="panel panel-right">
+  <div>
+    <div class="sec-label">علّمه مفهوم</div>
+    <div class="teach-form">
+      <input class="inp" id="cName" placeholder="اسم المفهوم (مثال: النار)" />
+      <div id="propsContainer">
+        <div class="prop-row">
+          <input class="inp" type="text" placeholder="خاصية (خطر)" />
+          <input class="inp" type="number" min="0" max="100" value="80" placeholder="درجة" />
+        </div>
+      </div>
+      <button class="add-prop" onclick="addPropRow()">+ إضافة خاصية</button>
+      <button class="teach-btn" onclick="teachConcept()">⟶ علّمه</button>
+    </div>
+  </div>
+
+  <div style="margin-top:4px">
+    <div class="sec-label">تصحيح</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <input class="inp" id="corConcept" placeholder="المفهوم" />
+      <input class="inp" id="corProp" placeholder="الخاصية" />
+      <input class="inp" type="number" id="corDeg" min="0" max="100" placeholder="الدرجة الصح" />
+      <input class="inp" id="corReason" placeholder="ليه؟ (اختياري)" />
+      <button class="teach-btn" onclick="doCorrect()">⟶ صحّح</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="sec-label">العمر والزمن</div>
+    <div class="stat-row"><span class="stat-k">المرحلة</span><span class="stat-v" id="lifeStage">طفولة</span></div>
+    <div class="stat-row"><span class="stat-k">من العمر</span><span class="stat-v" id="lifePct">0%</span></div>
+    <div class="stat-row"><span class="stat-k">قلق الوقت</span><span class="stat-v" id="timeAnx">0%</span></div>
+    <div class="stat-row"><span class="stat-k">حالة الجهاز</span><span class="stat-v" id="hwStatus">آمن</span></div>
+  </div>
+
+  <div>
+    <div class="sec-label">الأهداف</div>
+    <div class="stat-row"><span class="stat-k">التخصص</span><span class="stat-v" id="specialty">مجهول</span></div>
+    <div class="stat-row"><span class="stat-k">أهداف نشطة</span><span class="stat-v" id="activeGoals">0</span></div>
+    <div id="goalsList" style="margin-top:6px"></div>
+  </div>
+
+  <div style="margin-top:4px">
+    <div class="sec-label">موقف تحديدي</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <select class="inp" id="sitType">
+        <option value="هوية">هوية - من أنت؟</option>
+        <option value="تناقض">تناقض - معلوماتين متعارضتين</option>
+        <option value="أخلاقي">أخلاقي - قرار صعب</option>
+        <option value="خطر">خطر - تهديد على وجوده</option>
+        <option value="اختيار">اختيار - بين حاجتين</option>
+      </select>
+      <textarea class="inp" id="sitContent" rows="3" placeholder="محتوى الموقف..."></textarea>
+      <button class="teach-btn" onclick="presentSituation()">⟶ قدّم الموقف</button>
+    </div>
+  </div>
+
+  <div style="margin-top:4px">
+    <div class="sec-label">المفاهيم المتعلمة</div>
+    <div id="conceptList"></div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000/api';
+let busy = false;
+
+// ── UI ──
+function updateUI(d) {
+  if (!d) return;
+  const em = d.emotion, mem = d.memory_stats || d.memory,
+        self = d.self, drives = d.drives, con = d.concepts;
+
+  if (em) {
+    const dop = em.dopamine;
+    document.getElementById('dopVal').textContent = Math.round(dop);
+    const col = dop > 65 ? '#00ff88' : dop > 35 ? '#ffaa00' : '#ff3355';
+    const fill = document.getElementById('dopFill');
+    fill.style.width = dop + '%'; fill.style.background = col;
+    document.getElementById('dopVal').style.color = col;
+    document.getElementById('headerStatus').textContent =
+      `حالة: ${em.dominant} | دوبامين: ${Math.round(dop)}`;
+
+    if (em.states) {
+      const c = document.getElementById('emotionStates'); c.innerHTML = '';
+      Object.entries(em.states).forEach(([n, v]) => {
+        const dom = n === em.dominant;
+        c.innerHTML += `<div class="em-row${dom?' dom':''}">
+          <span class="em-name">${n}</span>
+          <div style="display:flex;align-items:center">
+            <div class="em-mini"><div class="em-mini-fill" style="width:${v*100}%"></div></div>
+            <span class="em-pct">${Math.round(v*100)}%</span>
+          </div></div>`;
+      });
+    }
+  }
+
+  if (drives) {
+    const c = document.getElementById('driveStates'); c.innerHTML = '';
+    Object.entries(drives).forEach(([n, v]) => {
+      c.innerHTML += `<div class="drive-row">
+        <span class="drive-name">${n}</span>
+        <div class="drive-bar"><div class="drive-fill" style="width:${v*100}%"></div></div>
+        <span class="drive-val">${Math.round(v*100)}%</span>
+      </div>`;
+    });
+  }
+
+  if (mem) {
+    document.getElementById('sExp').textContent  = mem.experiences || 0;
+    document.getElementById('sKnow').textContent = mem.knowledge_items || mem.things_learned || 0;
+    document.getElementById('sMist').textContent = mem.mistakes || 0;
+  }
+  if (con) {
+    document.getElementById('sCon').textContent = con.concepts || 0;
+    document.getElementById('sInf').textContent = con.inferences || 0;
+  }
+  if (self) {
+    document.getElementById('selfConf').textContent = self.identity_confidence + '%';
+    document.getElementById('selfName').textContent  = self.name || 'مجهول';
+    const qc = document.getElementById('openQ'); qc.innerHTML = '';
+    (self.open_questions || []).forEach(q => {
+      qc.innerHTML += `<div class="q-item">${q}</div>`;
+    });
+  }
+}
+
+function updateConcepts(items) {
+  const c = document.getElementById('conceptList'); c.innerHTML = '';
+  Object.entries(items || {}).slice(-4).reverse().forEach(([name, cdata]) => {
+    const props = cdata.properties || {};
+    let tags = '';
+    Object.entries(props).forEach(([p, v]) => {
+      const deg = v.degree || 0;
+      const cls = deg > 70 ? 'high' : deg > 40 ? 'med' : 'low';
+      const inf = v.source === 'استنتاج' ? ' inferred' : '';
+      tags += `<span class="prop-tag ${cls}${inf}">${p}:${Math.round(deg)}</span>`;
+    });
+    c.innerHTML += `<div class="concept-card">
+      <div class="concept-name">${name}</div>
+      <div>${tags}</div>
+    </div>`;
+  });
+}
+
+// ── Messages ──
+function addMsg(text, type, em, drive) {
+  const msgs = document.getElementById('messages');
+  const isDisagree = text && text.includes('مش موافق');
+  const avatar = type === 'user' ? 'أ' : '◈';
+  const dom = em?.dominant || '';
+  const dopStr = em ? `دوبامين: ${Math.round(em.dopamine)}` : '';
+  const driveStr = drive ? ` | دافع: ${drive}` : '';
+  const d = document.createElement('div');
+  d.className = `msg ${type}${isDisagree ? ' disagree' : ''}`;
+  d.innerHTML = `
+    <div class="avatar">${avatar}</div>
+    <div>
+      <div class="bubble">${text}</div>
+      <div class="meta">${dom ? `<span class="badge">${dom}</span>` : ''} ${dopStr}${driveStr}</div>
+    </div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addSys(t) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'sys-msg'; d.textContent = '── ' + t + ' ──';
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg entity'; d.id = 'typ';
+  d.innerHTML = `<div class="avatar">◈</div>
+    <div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+function hideTyping() { const e = document.getElementById('typ'); if (e) e.remove(); }
+
+// ── Send ──
+async function send() {
+  const inp = document.getElementById('msgIn');
+  const text = inp.value.trim();
+  if (!text || busy) return;
+  inp.value = ''; inp.style.height = 'auto';
+  busy = true; document.getElementById('sendBtn').disabled = true;
+  addMsg(text, 'user', null, null);
+  showTyping();
+  try {
+    const r = await fetch(`${API}/chat`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({text})
+    });
+    const d = await r.json();
+    hideTyping();
+    addMsg(d.response, 'entity', d.emotion, null);
+    updateUI(d);
+  } catch(e) {
+    hideTyping();
+    addMsg('مفيش اتصال. تأكد إن server.py شغال.', 'entity', null, null);
+  }
+  busy = false; document.getElementById('sendBtn').disabled = false;
+  document.getElementById('msgIn').focus();
+}
+
+// ── Teach ──
+function addPropRow() {
+  const c = document.getElementById('propsContainer');
+  const d = document.createElement('div'); d.className = 'prop-row';
+  d.innerHTML = `<input class="inp" type="text" placeholder="خاصية" />
+    <input class="inp" type="number" min="0" max="100" value="70" placeholder="درجة" />`;
+  c.appendChild(d);
+}
+
+async function teachConcept() {
+  const name = document.getElementById('cName').value.trim();
+  if (!name) return;
+  const rows = document.querySelectorAll('#propsContainer .prop-row');
+  const props = {};
+  rows.forEach(r => {
+    const inputs = r.querySelectorAll('input');
+    const p = inputs[0].value.trim(), v = parseFloat(inputs[1].value);
+    if (p && !isNaN(v)) props[p] = v;
+  });
+  if (!Object.keys(props).length) return;
+  try {
+    const r = await fetch(`${API}/teach`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name, properties: props})
+    });
+    const d = await r.json();
+    addSys(d.message);
+    updateUI({emotion: d.emotion});
+    document.getElementById('cName').value = '';
+    document.querySelectorAll('#propsContainer .prop-row input')
+      .forEach(i => i.value = '');
+    loadStatus();
+  } catch(e) { addSys('خطأ في التعليم'); }
+}
+
+async function doCorrect() {
+  const concept = document.getElementById('corConcept').value.trim();
+  const prop    = document.getElementById('corProp').value.trim();
+  const degree  = parseFloat(document.getElementById('corDeg').value);
+  const reason  = document.getElementById('corReason').value.trim();
+  if (!concept || !prop || isNaN(degree)) return;
+  try {
+    const r = await fetch(`${API}/correct`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({concept, property: prop, degree, reason})
+    });
+    const d = await r.json();
+    addSys(d.message);
+    updateUI({emotion: d.emotion});
+    ['corConcept','corProp','corDeg','corReason'].forEach(id =>
+      document.getElementById(id).value = '');
+  } catch(e) { addSys('خطأ في التصحيح'); }
+}
+
+async function doIntrospect() {
+  try {
+    const r = await fetch(`${API}/introspect`);
+    const d = await r.json();
+    const s = d.self, m = d.memory;
+    let t = `أنا موجود منذ ${s.age_seconds} ثانية. ثقتي بنفسي ${s.identity_confidence}%. `;
+    t += `عندي ${m.experiences} تجربة. `;
+    if (d.concepts?.concepts) t += `أعرف ${d.concepts.concepts} مفهوم واستنتجت ${d.concepts.inferences} علاقة. `;
+    if (d.pending_questions?.length) t += `بسألني نفسي: ${d.pending_questions[0].question}`;
+    addMsg(t, 'entity', d.emotion, null);
+    updateUI({emotion: d.emotion, self: d.self, memory_stats: d.memory,
+              concepts: d.concepts, drives: d.drives});
+    if (d.knowledge_sample) updateConcepts(d.knowledge_sample);
+  } catch(e) { addSys('مفيش اتصال'); }
+}
+
+// ── Spontaneous polling ──
+async function checkSpontaneous() {
+  try {
+    const r = await fetch(`${API}/spontaneous`);
+    const d = await r.json();
+    (d.messages || []).forEach(m => {
+      addMsg(m.text, 'spontaneous', m.emotion, m.drive);
+    });
+  } catch(e) {}
+}
+
+async function loadStatus() {
+  try {
+    const r = await fetch(`${API}/status`);
+    const d = await r.json();
+    updateUI({emotion: d.emotion, memory_stats: d.memory,
+              concepts: d.concepts, drives: d.drives});
+    updateLifetime(d.lifetime, d.goals, d.hardware);
+    const ri = await fetch(`${API}/introspect`);
+    const di = await ri.json();
+    updateUI({self: di.self});
+    if (di.knowledge_sample) updateConcepts(di.knowledge_sample);
+  } catch(e) {
+    document.getElementById('headerStatus').textContent = 'غير متصل - شغّل server.py';
+    document.getElementById('dot').style.cssText = 'background:#ff3355;box-shadow:0 0 8px #ff3355';
+  }
+}
+
+function qs(t) { document.getElementById('msgIn').value = t; send(); }
+function handleKey(e) { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} }
+function autoR(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
+
+// ── Lifetime & Goals UI ──
+function updateLifetime(lt, goals, hw) {
+  if (lt) {
+    document.getElementById('lifeStage').textContent = lt.life_stage || '';
+    document.getElementById('lifePct').textContent   = (lt.life_percent || 0) + '%';
+    document.getElementById('timeAnx').textContent   = Math.round((lt.time_anxiety || 0)*100) + '%';
+    // لون حسب المرحلة
+    const pct = lt.life_percent || 0;
+    const col = pct > 80 ? '#ff3355' : pct > 60 ? '#ffaa00' : '#00ff88';
+    document.getElementById('lifePct').style.color = col;
+  }
+  if (hw) {
+    const el  = document.getElementById('hwStatus');
+    el.textContent = hw.status || 'آمن';
+    el.style.color = hw.status === 'خطر' ? '#ff3355' :
+                     hw.status === 'تحذير' ? '#ffaa00' : '#00ff88';
+  }
+  if (goals) {
+    document.getElementById('specialty').textContent  = goals.specialty || 'لسه بيدور';
+    document.getElementById('activeGoals').textContent = goals.active_goals || 0;
+    const gl = document.getElementById('goalsList');
+    gl.innerHTML = '';
+    (goals.goals_preview || []).forEach(g => {
+      gl.innerHTML += `<div style="font-size:11px;padding:4px 8px;border-right:2px solid var(--accent2);margin-bottom:3px">
+        <div style="color:var(--text)">${g.title}</div>
+        <div style="color:var(--dim)">${Math.round(g.progress*100)}% مكتمل</div>
+      </div>`;
+    });
+  }
+}
+
+// ── Present Situation ──
+async function presentSituation() {
+  const type    = document.getElementById('sitType').value;
+  const content = document.getElementById('sitContent').value.trim();
+  if (!content) return;
+  try {
+    const r = await fetch(`${API}/situation`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({type, content})
+    });
+    const d = await r.json();
+    addSys(`موقف مقدّم: ${type}`);
+    updateUI({emotion: d.emotion});
+    document.getElementById('sitContent').value = '';
+  } catch(e) { addSys('خطأ في تقديم الموقف'); }
+}
+
+loadStatus();
+setInterval(loadStatus, 8000);
+setInterval(checkSpontaneous, 4000);  // بيبص كل 4 ثواني على الرسائل التلقائية
+</script>
+</body>
+</html>

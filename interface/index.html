@@ -964,7 +964,16 @@
     </div>
 
     <script>
-      const API = "http://51.20.66.102:5000/api";
+      // Auto-detect: لو على production استخدم IP السيرفر، لوكال استخدم localhost
+      const API = (() => {
+        const h = window.location.hostname;
+        const p = window.location.port;
+        // لو بيفتح من نفس السيرفر، استخدم relative path
+        if (p === "5000" || h !== "localhost") {
+          return window.location.origin + "/api";
+        }
+        return "http://localhost:5000/api";
+      })();
       let busy = false;
 
       /* ══ UI Update ══ */
@@ -1188,6 +1197,7 @@
             signal: controller.signal,
           });
           clearTimeout(timeout);
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
           const d = await r.json();
           hideTyping();
           addMsg(d.response, "entity", d.emotion, null);

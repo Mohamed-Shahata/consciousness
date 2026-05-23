@@ -378,7 +378,7 @@ class Entity:
             })
 
     def _on_death(self):
-        print(">> الكيان وصل لنهاية عمره.")
+        print("[entity] Entity reached end of life.")
         self._save()
 
     def _state_response(self, response: str) -> dict:
@@ -436,10 +436,9 @@ class Entity:
                 self.drives.from_dict(s.get("drives", {}))
                 self.situations.from_dict(s.get("situations", {}))
                 self.search.from_dict(s.get("search", {}))
-                print(f">> الكيان صحي - {self.lifetime.life_stage} "
-                      f"({self.lifetime.life_percentage:.1f}% من عمره)")
+                print(f"[entity] Loaded - stage: {self.lifetime.life_stage} ({self.lifetime.life_percentage:.1f}% of life)")
             except Exception as e:
-                print("خطأ تحميل:", e)
+                print("[entity] Load error:", e)
                 self._init_fresh()
         else:
             self._init_fresh()
@@ -457,4 +456,4 @@ class Entity:
         )
         self.self_model.self_beliefs["أنا موجود"] = 1.0
         self.lifetime.add_milestone("الولادة")
-        print(f">> كيان جديد - عمره: {self.lifetime.lifespan_hours:.1f} ساعة")
+        print(f"[entity] New entity - lifespan: {self.lifetime.lifespan_hours:.1f} hours")

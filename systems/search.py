@@ -65,8 +65,7 @@ class SearchSystem:
         self.search_history = []    # تاريخ البحث
         self.pending_share  = []    # نتايج محتاج يشاركها مع صاحبه
 
-        print(f">> نظام البحث جاهز - "
-              f"{'Tavily+DuckDuckGo' if self.tavily_key else 'DuckDuckGo فقط'}")
+        print(f"[search] Ready - {"Tavily+DuckDuckGo" if self.tavily_key else "DuckDuckGo only"}")
 
     def search(self, query: str, reason: str = "") -> SearchResult:
         """
@@ -77,7 +76,7 @@ class SearchSystem:
         if not query:
             return SearchResult(query, [], "none")
 
-        print(f">> الكيان بيبحث: '{query}' - السبب: {reason}")
+        print(f"[search] Query: {query!r} | reason: {reason}")
 
         # جرب Tavily الأول
         if self.tavily_key and self.tavily_used < self.tavily_limit:
@@ -133,7 +132,7 @@ class SearchSystem:
             return results
 
         except Exception as e:
-            print(f"Tavily error: {e}")
+            print(f"[search] Tavily error: {e}")
             return []
 
     def _ddg_search(self, query: str) -> list:
@@ -167,7 +166,7 @@ class SearchSystem:
             return results
 
         except Exception as e:
-            print(f"DuckDuckGo error: {e}")
+            print(f"[search] DDG error: {e}")
             return []
 
     def _record(self, result: SearchResult, reason: str):
@@ -197,36 +196,38 @@ class SearchSystem:
                       emotion_state: dict,
                       pending_questions: list) -> tuple:
         """
-        هل المفروض يبحث دلوقتي؟
-        بيرجع (True/False, query, reason)
+        Should the entity search now?
+        Returns (True/False, query, reason)
+        Rules: search only for real factual questions, not casual chat
         """
-        dopamine = emotion_state.get("dopamine", 50)
-        states   = emotion_state.get("states", {})
-        curiosity = states.get("فضول", 0)
+        # Too short to search
+        if len(text) < 8:
+            return False, "", ""
 
-        # حالة 1: سؤال مباشر في الكلام
-        question_triggers = ["إيه", "ما هو", "ازاي", "ليه", "فين", "امتى", "مين"]
-        for trigger in question_triggers:
-            if trigger in text and len(text) > 10:
-                # استخراج موضوع البحث من السؤال
-                query = self._extract_query(text)
-                if query:
-                    return True, query, "سؤال مباشر"
+        # Casual phrases - never search these
+        casual = [
+            "ازاي عرفت", "حاسس بيه", "بتعمل اي", "اخبارك",
+            "ماشي", "تمام", "كويس", "برافو", "شاطر",
+            "انت مين", "اسمك", "اسمي", "بتكلم مين",
+            "عارف انت", "مش متاكد ليه", "بتقول كدا",
+        ]
+        text_lower = text.strip()
+        if any(c in text_lower for c in casual):
+            return False, "", ""
 
-        # حالة 2: فضول عالي + أسئلة معلقة
-        if curiosity > 0.6 and pending_questions:
-            query = pending_questions[0]
-            # تنظيف السؤال
-            query = query.replace("؟", "").replace("?", "").strip()
-            if len(query) > 3:
-                return True, query, "فضول داخلي"
-
-        # حالة 3: مش عارف الإجابة
-        ignorance_triggers = ["مش عارف", "مش متأكد", "مش فاهم"]
-        if any(t in text for t in ignorance_triggers) and len(text) > 5:
+        # Only search for real factual questions about the world
+        # Question must be about a concrete topic, min 15 chars
+        factual_triggers = [
+            "إيه هو", "إيه هي", "ما هو", "ما هي",
+            "ازاي بيشتغل", "ازاي بتشتغل",
+            "ليه بيحصل", "فين موجود", "امتى حصل",
+            "مين اخترع", "كام عدد",
+        ]
+        has_factual = any(t in text_lower for t in factual_triggers)
+        if has_factual and len(text) > 15:
             query = self._extract_query(text)
-            if query:
-                return True, query, "محتاج يعرف"
+            if query and len(query) > 5:
+                return True, query, "factual question"
 
         return False, "", ""
 

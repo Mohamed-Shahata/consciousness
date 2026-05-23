@@ -32,7 +32,7 @@ class GroqLanguage:
         self.client = Groq(api_key=key)
         self.model  = "llama-3.3-70b-versatile"
         self.conversation_history = []
-        print(">> Groq جاهز - llama-3.3-70b-versatile")
+        print("[language] Groq ready - llama-3.3-70b-versatile")
 
     def _build_system(self, emotion_state, memory_context,
                       concept_context, self_context,
@@ -205,7 +205,7 @@ class GroqLanguage:
                 if attempt < 2:
                     time.sleep(2)
                     continue
-                print(f"Groq error: {e}")
+                print(f"[language] Groq error: {e}")
                 return self._fallback_response(emotion_state, drive)
 
     def _fallback_response(self, emotion_state: dict,

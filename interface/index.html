@@ -1187,33 +1187,42 @@
         document.getElementById("sendBtn").disabled = true;
         addMsg(text, "user", null, null);
         showTyping();
-        try {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 30000);
-          const r = await fetch(`${API}/chat`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text }),
-            signal: controller.signal,
-          });
-          clearTimeout(timeout);
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          const d = await r.json();
-          hideTyping();
-          addMsg(d.response, "entity", d.emotion, null);
-          updateUI(d);
-          if (d.search_query) addSys(`بحث: ${d.search_query}`);
-        } catch (e) {
-          hideTyping();
-          const msg =
-            e.name === "AbortError"
-              ? "السيرفر بطيء — حاول تاني"
-              : "مفيش اتصال — شغّل server.py";
-          addMsg(msg, "entity", null, null);
-        } finally {
-          busy = false;
-          document.getElementById("sendBtn").disabled = false;
+        let retries = 0;
+        while (retries < 2) {
+          try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 60000);
+            const r = await fetch(`${API}/chat`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text }),
+              signal: controller.signal,
+            });
+            clearTimeout(timeout);
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            const d = await r.json();
+            hideTyping();
+            addMsg(d.response, "entity", d.emotion, null);
+            updateUI(d);
+            if (d.search_query) addSys(`بحث: ${d.search_query}`);
+            break;
+          } catch (e) {
+            retries++;
+            if (retries < 2) {
+              addSys("بحاول تاني...");
+              await new Promise((res) => setTimeout(res, 2000));
+            } else {
+              hideTyping();
+              const msg =
+                e.name === "AbortError"
+                  ? "السيرفر بطيء — حاول تاني"
+                  : "مفيش اتصال — شغّل server.py";
+              addMsg(msg, "entity", null, null);
+            }
+          }
         }
+        busy = false;
+        document.getElementById("sendBtn").disabled = false;
         document.getElementById("msgIn").focus();
       }
 

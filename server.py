@@ -85,31 +85,6 @@ def status():
         "search":   entity.search.stats(),
     })
 
-def load_env_var(key, default=""):
-    """بيقرأ متغير من .env بدون مكتبات خارجية"""
-    for path in [
-        os.path.join(os.path.dirname(__file__), ".env"),
-        os.path.join(os.path.dirname(__file__), "systems/.env"),
-    ]:
-        if os.path.exists(path):
-            with open(path) as f:
-                for line in f:
-                    line = line.strip()
-                    if line.startswith(key + "="):
-                        return line.split("=", 1)[1].strip().strip('"').strip("'")
-    return os.environ.get(key, default)
-
 if __name__ == "__main__":
-    env          = load_env_var("ENV", "development")
-    prod_host    = load_env_var("PRODUCTION_HOST", "0.0.0.0")
-    port         = int(load_env_var("PRODUCTION_PORT", "5000"))
-    is_prod      = env == "production"
-
-    if is_prod:
-        url = f"http://{prod_host}:{port}"
-    else:
-        url = f"http://localhost:{port}"
-
-    print(f"[server] ENV={env}")
-    print(f"[server] Open: {url}\n")
-    app.run(debug=not is_prod, host='0.0.0.0', port=port, threaded=True)
+    print("[server] Open: http://localhost:5000\n")
+    app.run(debug=False, host="0.0.0.0", port=5000)

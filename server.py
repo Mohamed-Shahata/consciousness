@@ -77,4 +77,4 @@ def status():
 
 if __name__ == "__main__":
     print("\n>> افتح: http://localhost:5000\n")
-    app.run(debug=False, port=5000)
+    app.run(debug=False, host="0.0.0.0", port=5000)

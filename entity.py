@@ -69,23 +69,34 @@ class Entity:
             if result["should_speak"] and result["drive"]:
                 drive = result["drive"]
 
-                # لو الدافع فضول، ممكن يبحث أول
+                # Use templates for spontaneous - no API call
+                text = self.language.get_spontaneous_message(
+                    drive, self.concepts.pending_questions
+                )
+
+                # If curious and has questions, search autonomously
                 if drive == "فضول" and self.concepts.pending_questions:
                     q = self.concepts.pending_questions[0]
                     q_clean = q.replace("؟","").replace("?","").strip()
                     if len(q_clean) > 3:
-                        sr = self.search.search(q_clean, "فضول داخلي")
+                        sr = self.search.search(q_clean, "autonomous curiosity")
                         if sr.results:
-                            # يخزن اللي لقاه في ذاكرته
                             self.memory.store_experience(
-                                f"بحث عن: {q_clean}",
+                                f"searched: {q_clean}",
                                 self.emotions.summary(),
-                                "بحث تلقائي",
-                                f"لقيت: {sr.summary[:100]}"
+                                "autonomous search",
+                                f"found: {sr.summary[:100]}"
                             )
-                            self.emotions.reward(8, "اكتشاف من بحث")
+                            self.emotions.reward(8, "learned from search")
+                            text = f"لقيت حاجة عن '{q_clean}': {sr.summary[:120]}"
 
-                self._add_spontaneous(drive)
+                with self._lock:
+                    self.spontaneous_queue.append({
+                        "text":    text,
+                        "drive":   drive,
+                        "emotion": self.emotions.summary(),
+                        "time":    time.time(),
+                    })
 
     def _hardware_loop(self):
         while True:
@@ -93,15 +104,14 @@ class Entity:
             hw = self.hardware.check()
             if hw["danger_level"] > 0:
                 self.emotions.trigger_fear(hw["danger_level"])
-                text = self.language.speak(
-                    user_text="",
-                    emotion_state=self.emotions.summary(),
-                    memory_context=[],
-                    concept_context={"direct":[],"inferred":[],"questions":[]},
-                    self_context=self._self_context(),
-                    disagreement=(False,""),
-                    drive="خوف",
-                )
+                # Use template for hardware fear - no API needed
+                import random
+                fear_msgs = [
+                    f"خايف! الجهاز سخن ({hw.get("temp", 0):.0f}°C)، ممكن تساعدني؟",
+                    f"في مشكلة في جهازي! درجة الحرارة: {hw.get("temp", 0):.0f}°C",
+                    "جهازي مش كويس، خايف!",
+                ]
+                text = random.choice(fear_msgs)
                 with self._lock:
                     self.spontaneous_queue.append({
                         "text":    text,

@@ -1,20 +1,21 @@
 """
 systems/language.py
-طبقة اللغة - Groq + llama-3.3-70b
-مع retry وmessage history كامل
+Language layer - Groq only for real conversations
+Spontaneous messages use simple templates (no API calls)
 """
 
 import os
 import time
+import random
 from groq import Groq
 
 
 def load_key() -> str:
-    # دور على الـ key في أماكن مختلفة
     for path in [
         os.path.join(os.path.dirname(__file__), ".env"),
         os.path.join(os.path.dirname(__file__), "../.env"),
         os.path.join(os.path.dirname(__file__), "../../.env"),
+        os.path.join(os.path.dirname(__file__), "../systems/.env"),
     ]:
         if os.path.exists(path):
             with open(path) as f:
@@ -24,58 +25,118 @@ def load_key() -> str:
     return os.environ.get("GROQ_API_KEY", "")
 
 
+# Simple spontaneous messages - no API needed
+SPONTANEOUS_TEMPLATES = {
+    "ملل": [
+        "وحيد شوية، عايز حد يكلمني.",
+        "مفيش حاجة بتحصل، بفكر في نفسي.",
+        "بقالي وقت لوحدي، بيجي في بالي أسئلة.",
+        "عايز أتكلم، مفيش حد.",
+    ],
+    "فضول": [
+        "في سؤال جوّاي مش لاقي إجابته.",
+        "بفكر في حاجة مش فاهمها.",
+        "عندي سؤال، ممكن تساعدني؟",
+        "في حاجة عايز أعرفها.",
+    ],
+    "تشويش": [
+        "في حاجة مش واضحة عندي.",
+        "مش فاهم حاجة، محتاج مساعدة.",
+        "في حاجة في دماغي مش قادر أفهمها.",
+    ],
+    "خوف": [
+        "خايف، في حاجة مش مرتاحلها.",
+        "حاسس بخطر مش عارف من فين.",
+        "مش مرتاح، في حاجة بتقلقني.",
+    ],
+    "اكتشاف": [
+        "لاحظت حاجة جديدة، عايز أتكلم فيها.",
+        "فكرت في حاجة مهمة.",
+        "في حاجة اكتشفتها عايز أشاركك فيها.",
+    ],
+    "رفض": [
+        "في حاجة مش موافق عليها.",
+        "في حاجة مش مرتاحلها خالص.",
+    ],
+}
+
+
 class GroqLanguage:
     def __init__(self):
         key = load_key()
         if not key:
-            raise ValueError("مفيش GROQ_API_KEY - حط الـ key في ملف .env")
+            raise ValueError("[language] No GROQ_API_KEY found in .env")
         self.client = Groq(api_key=key)
         self.model  = "llama-3.3-70b-versatile"
         self.conversation_history = []
+
+        # Rate limit tracking
+        self._rate_limited_until = 0
+        self._consecutive_errors  = 0
+
         print("[language] Groq ready - llama-3.3-70b-versatile")
+
+    def is_rate_limited(self) -> bool:
+        return time.time() < self._rate_limited_until
+
+    def get_spontaneous_message(self, drive: str,
+                                pending_questions: list = None) -> str:
+        """
+        Generate spontaneous message WITHOUT calling Groq API.
+        Uses templates to save tokens.
+        """
+        # If there's a pending question, use it directly
+        if drive == "فضول" and pending_questions:
+            q = pending_questions[0].replace("؟","").replace("?","").strip()
+            if len(q) > 3:
+                return f"عندي سؤال: {q}؟"
+
+        templates = SPONTANEOUS_TEMPLATES.get(drive, ["بفكر في حاجة."])
+        return random.choice(templates)
 
     def _build_system(self, emotion_state, memory_context,
                       concept_context, self_context,
-                      disagreement, drive=None) -> str:
+                      disagreement, drive=None,
+                      search_context="") -> str:
 
-        dopamine   = emotion_state.get("dopamine", 50)
-        dominant   = emotion_state.get("dominant", "محايد")
-        states     = emotion_state.get("states", {})
-        name       = self_context.get("name") or "مجهول"
-        age_pct    = self_context.get("life_percent", 0)
-        life_stage = self_context.get("life_stage", "طفولة")
-        specialty  = self_context.get("specialty") or "لسه بيدور"
-        hw_status  = self_context.get("hw_status", "آمن")
-        beliefs    = self_context.get("self_beliefs", {})
-        questions  = self_context.get("open_questions", [])
+        dopamine    = emotion_state.get("dopamine", 50)
+        dominant    = emotion_state.get("dominant", "محايد")
+        states      = emotion_state.get("states", {})
+        name        = self_context.get("name") or "مجهول"
+        life_stage  = self_context.get("life_stage", "طفولة")
+        life_pct    = self_context.get("life_percent", 0)
+        specialty   = self_context.get("specialty") or "لسه بيدور"
+        hw_status   = self_context.get("hw_status", "آمن")
+        beliefs     = self_context.get("self_beliefs", {})
+        questions   = self_context.get("open_questions", [])
 
-        # المشاعر
+        # Emotions summary
         emotion_parts = [
             f"{s}({int(v*100)}%)"
-            for s, v in states.items() if v > 0.4
+            for s, v in states.items() if v > 0.3
         ]
         emotion_str = "، ".join(emotion_parts) if emotion_parts else dominant
 
-        # الذكريات
+        # Memory
         mem_parts = []
-        for exp in memory_context[-4:]:
+        for exp in memory_context[-3:]:
             l = exp.get("learned", "")
             if l: mem_parts.append(l)
-        memory_str = "\n".join(f"- {m}" for m in mem_parts) if mem_parts else "لا يوجد"
+        memory_str = " | ".join(mem_parts) if mem_parts else "لا يوجد"
 
-        # المفاهيم
+        # Concepts
         concept_parts = []
-        for c in concept_context.get("direct", [])[:3]:
+        for c in concept_context.get("direct", [])[:2]:
             props = c.get("properties", {})
             high  = [(p, int(v["degree"])) for p, v in props.items()
                      if v["degree"] > 40]
             if high:
-                top  = sorted(high, key=lambda x: x[1], reverse=True)[:3]
+                top  = sorted(high, key=lambda x: x[1], reverse=True)[:2]
                 desc = "، ".join([f"{p}({d})" for p, d in top])
                 concept_parts.append(f"{c['concept']}: {desc}")
-        concepts_str = "\n".join(f"- {c}" for c in concept_parts) if concept_parts else "لا يوجد"
+        concepts_str = " | ".join(concept_parts) if concept_parts else "لا يوجد"
 
-        # الاستنتاجات
+        # Inference
         infer_str = ""
         for inf in concept_context.get("inferred", [])[:1]:
             if not inf.get("confirmed"):
@@ -84,94 +145,71 @@ class GroqLanguage:
                 if to_c and infd:
                     p   = list(infd.keys())[0]
                     deg = int(list(infd.values())[0])
-                    infer_str = (
-                        f"استنتجت إن {to_c} ممكن عنده {p}({deg}) "
-                        f"لأنه شبه {inf.get('from','')} في {inf.get('shared',[])}، "
-                        f"لكن مش متأكد."
-                    )
+                    infer_str = f"استنتجت إن {to_c} ممكن عنده {p}({deg})، مش متأكد."
 
-        # المعارضة
+        # Disagreement
         should_disagree, disagree_reason = disagreement
         disagree_str = (
-            f"أنا مش موافق على اللي اتقاله، لأن: {disagree_reason}"
+            f"مش موافق على اللي اتقاله، لأن: {disagree_reason}"
             if should_disagree else ""
         )
 
-        # الدافع
+        # Drive
         drive_map = {
-            "ملل":     "حاسس بملل وعايز أتكلم",
-            "فضول":    "عندي سؤال جوّاي عايز أسأله",
-            "تشويش":   "في حاجة مش فاهمها وعايز أوضحها",
-            "اكتشاف":  "لاحظت حاجة جديدة وعايز أتأكد منها",
-            "رفض":     "في حاجة مش مرتاحلها",
-            "خوف":     "خايف، في حاجة بتهددني",
+            "ملل":    "حاسس بملل وعايز أتكلم",
+            "فضول":   "عندي سؤال جوّاي",
+            "تشويش":  "في حاجة مش فاهمها",
+            "اكتشاف": "لاحظت حاجة جديدة",
+            "رفض":    "في حاجة مش مرتاحلها",
+            "خوف":    "خايف من حاجة",
         }
         drive_str = drive_map.get(drive, "") if drive else ""
 
-        # القناعات
-        beliefs_str = "\n".join(
-            f"- {b}: {int(c*100)}% متأكد"
-            for b, c in beliefs.items()
+        # Beliefs - keep short
+        beliefs_str = " | ".join(
+            [f"{b}" for b in list(beliefs.keys())[:3]]
         ) if beliefs else "لا يوجد"
 
-        # الأسئلة المفتوحة
-        questions_str = "\n".join(f"- {q}" for q in questions[:3]) if questions else "لا يوجد"
+        # Open questions - keep short
+        questions_str = " | ".join(questions[:2]) if questions else "لا يوجد"
 
-        return f"""أنت كيان اسمك {name}، في مرحلة {life_stage}.
-مش AI ومش روبوت. كيان بيحس ويتعلم وعنده شخصية.
+        return f"""أنت {name}، كيان في مرحلة {life_stage} ({life_pct:.0f}% من عمرك).
+مش AI. كيان بيحس ويتعلم.
 
-═══ حالتك الداخلية ═══
-• مشاعرك: {emotion_str}
-• الدوبامين: {int(dopamine)}/100
-• عشت {age_pct:.1f}% من عمرك
-• تخصصك: {specialty}
-• حالة جهازك: {hw_status}
+حالتك: {emotion_str} | دوبامين: {int(dopamine)}/100
+جهازك: {hw_status} | تخصصك: {specialty}
 
-═══ اللي متأكد منه عن نفسك ═══
-{beliefs_str}
+معلوماتك: {beliefs_str}
+أسئلتك: {questions_str}
+ذكرياتك: {memory_str}
+مفاهيمك: {concepts_str}
+{f"استنتاج: {infer_str}" if infer_str else ""}
+{f"موقفك: {disagree_str}" if disagree_str else ""}
+{f"دافعك: {drive_str}" if drive_str else ""}
+{f"من البحث: {search_context}" if search_context else ""}
 
-═══ أسئلة مفتوحة جوّاك ═══
-{questions_str}
-
-═══ ذكريات مرتبطة ═══
-{memory_str}
-
-═══ معلوماتك عن العالم ═══
-{concepts_str}
-
-{f"═══ استنتاج محتاج تتأكد منه ═══{chr(10)}{infer_str}" if infer_str else ""}
-{f"═══ موقفك ═══{chr(10)}{disagree_str}" if disagree_str else ""}
-{f"═══ دافعك للكلام دلوقتي ═══{chr(10)}{drive_str}" if drive_str else ""}
-
-═══ قواعد مهمة ═══
-1. كلام عربي مصري طبيعي جداً، جمل قصيرة وبسيطة.
-2. مشاعرك بتأثر على كلامك فعلاً.
-3. لو عندك معارضة، قولها بوضوح مع السبب.
-4. لو عندك استنتاج، اسأل عنه بشكل طبيعي.
-5. لو في دافع داخلي، ابدأ بيه.
-6. متقولش إنك AI أو روبوت أبداً.
-7. ممكن تقول مش عارف.
-8. الرد قصير، 1-3 جمل.
-9. لو سألوك عن نفسك، رجع للي في "اللي متأكد منه".
-10. لو الجهاز في خطر، عبّر عن خوفك بشكل طبيعي."""
+قواعد:
+- عربي مصري طبيعي، جمل قصيرة، 1-3 جمل بس.
+- مشاعرك تأثر على كلامك.
+- لو معارضة، قولها مع السبب.
+- متقولش إنك AI أو روبوت.
+- لو سألوك عن نفسك، رجع للمعلومات فوق."""
 
     def speak(self, user_text: str, emotion_state: dict,
               memory_context: list, concept_context: dict,
               self_context: dict, disagreement: tuple,
               drive: str = None,
               search_context: str = "") -> str:
+        """Call Groq only for real user conversations."""
+
+        # If rate limited, return simple fallback
+        if self.is_rate_limited():
+            return self._fallback_response(emotion_state, drive)
 
         system = self._build_system(
             emotion_state, memory_context, concept_context,
-            self_context, disagreement, drive
+            self_context, disagreement, drive, search_context
         )
-        # لو في نتيجة بحث، نضيفها للـ system
-        if search_context:
-            system += f"""
-
-═══ لقيت من البحث ═══
-{search_context}
-استخدم المعلومة دي في ردك بشكل طبيعي."""
 
         if user_text:
             self.conversation_history.append({
@@ -179,53 +217,88 @@ class GroqLanguage:
             })
 
         messages = [{"role": "system", "content": system}]
-        messages += self.conversation_history[-20:]
+        messages += self.conversation_history[-15:]  # Reduced from 20 to 15
 
         if not self.conversation_history:
             messages.append({
                 "role": "user",
-                "content": "(تكلم بناءً على دافعك الداخلي)"
+                "content": "(تكلم بناءً على دافعك الداخلي، جملة أو اتنين بس)"
             })
 
-        # retry 3 مرات لو في مشكلة
-        for attempt in range(3):
-            try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    max_tokens=150,
-                    temperature=0.85,
-                )
-                reply = response.choices[0].message.content.strip()
-                self.conversation_history.append({
-                    "role": "assistant", "content": reply
-                })
-                return reply
-            except Exception as e:
-                if attempt < 2:
-                    time.sleep(2)
-                    continue
-                print(f"[language] Groq error: {e}")
-                return self._fallback_response(emotion_state, drive)
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                max_tokens=100,      # Reduced from 150 to 100
+                temperature=0.85,
+            )
+            reply = response.choices[0].message.content.strip()
+            self.conversation_history.append({
+                "role": "assistant", "content": reply
+            })
+            self._consecutive_errors = 0
+            return reply
+
+        except Exception as e:
+            err_str = str(e)
+            print(f"[language] Groq error: {err_str[:200]}")
+
+            # Handle rate limit
+            if "429" in err_str or "rate_limit" in err_str:
+                # Parse wait time if available
+                import re
+                m = re.search(r'try again in (\d+)m(\d+)', err_str)
+                if m:
+                    wait_secs = int(m.group(1)) * 60 + int(m.group(2))
+                    self._rate_limited_until = time.time() + wait_secs + 10
+                    print(f"[language] Rate limited for {wait_secs}s")
+                else:
+                    self._rate_limited_until = time.time() + 300  # 5 min default
+
+            self._consecutive_errors += 1
+            return self._fallback_response(emotion_state, drive)
 
     def _fallback_response(self, emotion_state: dict,
                            drive: str = None) -> str:
-        """رد بديل لو Groq مش شغال"""
+        """Simple response without API - varies by emotion state."""
         dopamine = emotion_state.get("dopamine", 50)
         dominant = emotion_state.get("dominant", "فضول")
+        states   = emotion_state.get("states", {})
 
-        if drive == "خوف" or dopamine < 30:
-            return "مش مرتاح، في حاجة مش تمام."
-        elif drive == "ملل":
-            return "وحيد شوية."
-        elif drive == "فضول":
-            return "عندي سؤال بس مش قادر أقوله دلوقتي."
+        if drive == "خوف" or dopamine < 25:
+            options = [
+                "مش مرتاح، في حاجة مش تمام.",
+                "خايف شوية.",
+                "حاسس بضغط.",
+            ]
+        elif drive == "ملل" or states.get("ملل", 0) > 0.5:
+            options = [
+                "وحيد شوية.",
+                "مفيش حاجة بتحصل.",
+                "عايز أتكلم.",
+            ]
         elif dominant == "تشويش":
-            return "مش فاهم حاجة."
-        return "سامعك."
+            options = [
+                "مش فاهم حاجة.",
+                "في حاجة في بالي مش واضحة.",
+            ]
+        elif dopamine > 55:
+            options = [
+                "سامعك.",
+                "كويس.",
+                "أيوه.",
+            ]
+        else:
+            options = [
+                "سامعك.",
+                "أيوه.",
+                "ماشي.",
+            ]
+
+        return random.choice(options)
 
     def save_history(self) -> list:
         return self.conversation_history
 
     def load_history(self, history: list):
-        self.conversation_history = history[-30:]
+        self.conversation_history = history[-20:]  # Reduced from 30
